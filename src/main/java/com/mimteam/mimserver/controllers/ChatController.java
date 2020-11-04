@@ -23,6 +23,12 @@ public class ChatController {
         sendMessageToChat(chatId, chatMessage);
     }
 
+    @MessageMapping("/chats/{chatId}/removeUser")
+    public void handleRemoveUserMessage(@DestinationVariable("chatId") String chatId,
+                                        @Payload ChatMessage chatMessage) {
+        sendMessageToChat(chatId, chatMessage);
+    }
+
     @MessageMapping("/chats/{chatId}/sendMessage")
     public void handleChatMessage(@DestinationVariable("chatId") String chatId,
                                   @Payload ChatMessage chatMessage) {

@@ -1,51 +1,43 @@
 package com.mimteam.mimserver.controllers;
 
-import com.mimteam.mimserver.controllers.events.JoinChatEvent;
-import com.mimteam.mimserver.controllers.events.LeaveChatEvent;
-import com.mimteam.mimserver.controllers.events.SendTextMessageEvent;
-import com.mimteam.mimserver.model.chat.ChatMessage;
+import com.mimteam.mimserver.events.JoinChatEvent;
+import com.mimteam.mimserver.events.LeaveChatEvent;
+import com.mimteam.mimserver.events.SendTextMessageEvent;
+import com.mimteam.mimserver.model.chat.ChatMembershipMessage;
 import com.mimteam.mimserver.model.chat.TextMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class ChatController {
-    private final SimpMessagingTemplate simpMessagingTemplate;
     private final EventHandler eventHandler;
 
     @Autowired
-    ChatController(SimpMessagingTemplate simpMessagingTemplate,
-                   EventHandler eventHandler) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    ChatController(EventHandler eventHandler) {
         this.eventHandler = eventHandler;
     }
 
     @MessageMapping("/chats/{chatId}/addUser")
-    public void handleAddUserMessage(@DestinationVariable("chatId") String chatId,
-                                     @Payload ChatMessage chatMessage) {
-        JoinChatEvent event = new JoinChatEvent(chatMessage);
+    public void handleAddUserMessage(@DestinationVariable("chatId") Integer chatId,
+                                     @Payload ChatMembershipMessage chatMembershipMessage) {
+        JoinChatEvent event = new JoinChatEvent(chatId, chatMembershipMessage);
         eventHandler.post(event);
     }
 
     @MessageMapping("/chats/{chatId}/removeUser")
-    public void handleRemoveUserMessage(@DestinationVariable("chatId") String chatId,
-                                        @Payload ChatMessage chatMessage) {
-        LeaveChatEvent event = new LeaveChatEvent(chatMessage);
+    public void handleRemoveUserMessage(@DestinationVariable("chatId") Integer chatId,
+                                        @Payload ChatMembershipMessage chatMembershipMessage) {
+        LeaveChatEvent event = new LeaveChatEvent(chatId, chatMembershipMessage);
         eventHandler.post(event);
     }
 
     @MessageMapping("/chats/{chatId}/sendMessage")
-    public void handleChatMessage(@DestinationVariable("chatId") String chatId,
+    public void handleChatMessage(@DestinationVariable("chatId") Integer chatId,
                                   @Payload TextMessage textMessage) {
-        SendTextMessageEvent event = new SendTextMessageEvent(textMessage);
+        SendTextMessageEvent event = new SendTextMessageEvent(chatId, textMessage);
         eventHandler.post(event);
-    }
-
-    private void sendMessageToChat(String chatId, ChatMessage message) {
-        simpMessagingTemplate.convertAndSend("/chats/" + chatId, message);
     }
 }

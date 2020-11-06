@@ -1,20 +1,17 @@
-package com.mimteam.mimserver.controllers.events;
+package com.mimteam.mimserver.events;
 
 import com.mimteam.mimserver.model.chat.TextMessage;
 
-public class SendTextMessageEvent extends Event {
+public class SendTextMessageEvent extends ChatEvent {
     private final TextMessage message;
 
-    public SendTextMessageEvent(TextMessage message) {
+    public SendTextMessageEvent(Integer chatId, TextMessage message) {
+        super(chatId);
         this.message = message;
     }
 
     public Integer getUserId() {
         return message.getUserId();
-    }
-
-    public Integer getChatId() {
-        return message.getChatId();
     }
 
     public String getContent() {
@@ -24,5 +21,4 @@ public class SendTextMessageEvent extends Event {
     public TextMessage getMessage() {
         return message;
     }
-
 }

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 public class TextMessage {
     private Integer userId;
-    private Integer chatId;
     private String content;
     private LocalDate time;
 
@@ -14,14 +13,6 @@ public class TextMessage {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
-    }
-
-    public Integer getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Integer chatId) {
-        this.chatId = chatId;
     }
 
     public String getContent() {

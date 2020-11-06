@@ -1,8 +1,7 @@
-package com.mimteam.mimserver.controllers;
+package com.mimteam.mimserver.handlers;
 
 import com.google.common.eventbus.EventBus;
 import com.mimteam.mimserver.events.ChatEvent;
-import com.mimteam.mimserver.handlers.ChatMessageBroadcaster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +13,9 @@ public class EventHandler {
 
     @Autowired
     public EventHandler(ChatMessageBroadcaster chatMessageBroadcaster) {
+        this.eventBus = new EventBus();
         this.chatMessageBroadcaster = chatMessageBroadcaster;
 
-        this.eventBus = new EventBus();
         registerListeners();
     }
 

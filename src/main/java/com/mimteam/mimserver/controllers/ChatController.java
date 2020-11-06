@@ -3,6 +3,7 @@ package com.mimteam.mimserver.controllers;
 import com.mimteam.mimserver.events.JoinChatEvent;
 import com.mimteam.mimserver.events.LeaveChatEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
+import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.chat.ChatMembershipMessage;
 import com.mimteam.mimserver.model.chat.TextMessage;
 import org.springframework.beans.factory.annotation.Autowired;

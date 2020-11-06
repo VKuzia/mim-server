@@ -2,9 +2,9 @@ package com.mimteam.mimserver.model;
 
 public class ConnectionMessage {
     private Integer userId;
-    private ConnectionType messageType;
+    private ConnectionMessageType messageType;
 
-    enum ConnectionType {
+    enum ConnectionMessageType {
         CONNECT, DISCONNECT
     }
 
@@ -16,11 +16,11 @@ public class ConnectionMessage {
         this.userId = userId;
     }
 
-    public ConnectionType getMessageType() {
+    public ConnectionMessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(ConnectionType messageType) {
+    public void setMessageType(ConnectionMessageType messageType) {
         this.messageType = messageType;
     }
 }

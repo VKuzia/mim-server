@@ -1,9 +1,11 @@
 package com.mimteam.mimserver.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 
 import java.time.LocalDate;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MessageDTO {
     private MessageType messageType;
 

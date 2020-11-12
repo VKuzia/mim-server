@@ -1,12 +1,12 @@
 package com.mimteam.mimserver.events;
 
-import com.mimteam.mimserver.model.chat.TextMessage;
+import com.mimteam.mimserver.model.messages.TextMessage;
 
 public class SendTextMessageEvent extends ChatEvent {
     private final TextMessage message;
 
-    public SendTextMessageEvent(Integer chatId, TextMessage message) {
-        super(chatId);
+    public SendTextMessageEvent(TextMessage message) {
+        super(message.getChatId());
         this.message = message;
     }
 

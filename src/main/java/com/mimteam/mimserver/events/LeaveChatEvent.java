@@ -1,12 +1,12 @@
 package com.mimteam.mimserver.events;
 
-import com.mimteam.mimserver.model.chat.ChatMembershipMessage;
+import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
 
 public class LeaveChatEvent extends ChatEvent {
     private final ChatMembershipMessage message;
 
-    public LeaveChatEvent(Integer chatId, ChatMembershipMessage message) {
-        super(chatId);
+    public LeaveChatEvent(ChatMembershipMessage message) {
+        super(message.getChatId());
         this.message = message;
     }
 

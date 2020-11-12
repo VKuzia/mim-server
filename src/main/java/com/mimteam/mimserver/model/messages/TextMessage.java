@@ -1,0 +1,63 @@
+package com.mimteam.mimserver.model.messages;
+
+import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.Transferable;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDate;
+
+public class TextMessage implements Transferable {
+    private Integer userId;
+    private Integer chatId;
+    private String content;
+    private LocalDate time;
+
+    @Override
+    public MessageDTO toDataTransferObject() {
+        MessageDTO dto = new MessageDTO();
+        dto.setMessageType(MessageDTO.MessageType.TEXT_MESSAGE);
+        dto.setUserId(userId);
+        dto.setContent(content);
+        dto.setTime(time);
+        return dto;
+    }
+
+    @Override
+    public void fromDataTransferObject(@NotNull MessageDTO dto) {
+        userId = dto.getUserId();
+        content = dto.getContent();
+        time = dto.getTime();
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Integer chatId) {
+        this.chatId = chatId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public LocalDate getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDate time) {
+        this.time = time;
+    }
+}

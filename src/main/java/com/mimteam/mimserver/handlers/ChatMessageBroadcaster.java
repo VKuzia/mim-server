@@ -31,6 +31,6 @@ public class ChatMessageBroadcaster {
     @Subscribe
     public void sendTextMessage(@NotNull SendTextMessageEvent event) {
         simpMessagingTemplate.convertAndSend("/chats/" + event.getChatId(),
-                event.getMessage());
+                event.getMessage().toDataTransferObject());
     }
 }

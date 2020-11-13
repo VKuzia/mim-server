@@ -19,7 +19,7 @@ public class ChatMessageBroadcaster {
     }
 
     @Subscribe
-    public void removeUserFromChat(@NotNull ChatMembershipEvent event) {
+    public void handleChatMembershipMessage(@NotNull ChatMembershipEvent event) {
         if (event.getChatMembershipMessageType() == ChatMembershipMessageType.JOIN) {
             System.out.println(event.getUserId() + " joined " + event.getChatId());
         } else {
@@ -28,7 +28,7 @@ public class ChatMessageBroadcaster {
     }
 
     @Subscribe
-    public void sendTextMessage(@NotNull SendTextMessageEvent event) {
+    public void handleTextMessage(@NotNull SendTextMessageEvent event) {
         simpMessagingTemplate.convertAndSend("/chats/" + event.getChatId(),
                 event.getMessage().toDataTransferObject());
     }

@@ -17,6 +17,7 @@ public class TextMessage implements Transferable {
         MessageDTO dto = new MessageDTO();
         dto.setMessageType(MessageDTO.MessageType.TEXT_MESSAGE);
         dto.setUserId(userId);
+        dto.setChatId(chatId);
         dto.setContent(content);
         dto.setTime(time);
         return dto;
@@ -25,6 +26,7 @@ public class TextMessage implements Transferable {
     @Override
     public void fromDataTransferObject(@NotNull MessageDTO dto) {
         userId = dto.getUserId();
+        chatId = dto.getChatId();
         content = dto.getContent();
         time = dto.getTime();
     }

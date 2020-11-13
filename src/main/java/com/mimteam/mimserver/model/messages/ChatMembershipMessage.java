@@ -18,6 +18,7 @@ public class ChatMembershipMessage implements Transferable {
         MessageDTO dto = new MessageDTO();
         dto.setMessageType(MessageDTO.MessageType.CHAT_MEMBERSHIP_MESSAGE);
         dto.setUserId(userId);
+        dto.setChatId(chatId);
         dto.setChatMembershipMessageType(chatMembershipMessageType);
         return null;
     }
@@ -25,6 +26,7 @@ public class ChatMembershipMessage implements Transferable {
     @Override
     public void fromDataTransferObject(@NotNull MessageDTO dto) {
         this.userId = dto.getUserId();
+        this.chatId = dto.getChatId();
         this.chatMembershipMessageType = dto.getChatMembershipMessageType();
     }
 

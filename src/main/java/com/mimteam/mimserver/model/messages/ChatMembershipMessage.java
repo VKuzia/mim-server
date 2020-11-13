@@ -20,7 +20,7 @@ public class ChatMembershipMessage implements Transferable {
         dto.setUserId(userId);
         dto.setChatId(chatId);
         dto.setChatMembershipMessageType(chatMembershipMessageType);
-        return null;
+        return dto;
     }
 
     @Override

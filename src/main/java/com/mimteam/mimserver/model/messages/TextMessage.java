@@ -25,10 +25,10 @@ public class TextMessage implements Transferable {
 
     @Override
     public void fromDataTransferObject(@NotNull MessageDTO dto) {
-        userId = dto.getUserId();
-        chatId = dto.getChatId();
-        content = dto.getContent();
-        time = dto.getTime();
+        this.userId = dto.getUserId();
+        this.chatId = dto.getChatId();
+        this.content = dto.getContent();
+        this.time = dto.getTime();
     }
 
     public Integer getUserId() {

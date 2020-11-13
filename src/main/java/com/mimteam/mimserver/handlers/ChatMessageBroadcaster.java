@@ -1,9 +1,9 @@
 package com.mimteam.mimserver.handlers;
 
 import com.google.common.eventbus.Subscribe;
-import com.mimteam.mimserver.events.JoinChatEvent;
-import com.mimteam.mimserver.events.LeaveChatEvent;
+import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
+import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,13 +19,12 @@ public class ChatMessageBroadcaster {
     }
 
     @Subscribe
-    public void addUserToChat(@NotNull JoinChatEvent event) {
-        System.out.println(event.getUserId() + " joined " + event.getChatId());
-    }
-
-    @Subscribe
-    public void removeUserFromChat(@NotNull LeaveChatEvent event) {
-        System.out.println(event.getUserId() + " left " + event.getChatId());
+    public void removeUserFromChat(@NotNull ChatMembershipEvent event) {
+        if (event.getChatMembershipMessageType() == ChatMembershipMessageType.JOIN) {
+            System.out.println(event.getUserId() + " joined " + event.getChatId());
+        } else {
+            System.out.println(event.getUserId() + " left " + event.getChatId());
+        }
     }
 
     @Subscribe

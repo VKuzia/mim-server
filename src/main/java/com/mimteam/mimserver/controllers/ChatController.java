@@ -1,8 +1,7 @@
 package com.mimteam.mimserver.controllers;
 
 import com.mimteam.mimserver.events.ChatEvent;
-import com.mimteam.mimserver.events.JoinChatEvent;
-import com.mimteam.mimserver.events.LeaveChatEvent;
+import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.MessageDTO;
@@ -28,18 +27,15 @@ public class ChatController {
     }
 
     private ChatEvent dtoToChatEvent(MessageDTO dto) {
-        if (dto.getMessageType() == MessageDTO.MessageType.TEXT_MESSAGE) {
-            TextMessage message = new TextMessage();
-            message.fromDataTransferObject(dto);
-            return new SendTextMessageEvent(message);
-        }
-        if (dto.getMessageType() == MessageDTO.MessageType.CHAT_MEMBERSHIP_MESSAGE) {
-            ChatMembershipMessage message = new ChatMembershipMessage();
-            message.fromDataTransferObject(dto);
-            if (message.getChatMembershipMessageType() == ChatMembershipMessage.ChatMembershipMessageType.JOIN) {
-                return new JoinChatEvent(message);
-            }
-            return new LeaveChatEvent(message);
+        switch (dto.getMessageType()) {
+            case TEXT_MESSAGE:
+                TextMessage textMessage = new TextMessage();
+                textMessage.fromDataTransferObject(dto);
+                return new SendTextMessageEvent(textMessage);
+            case CHAT_MEMBERSHIP_MESSAGE:
+                ChatMembershipMessage chatMembershipMessage = new ChatMembershipMessage();
+                chatMembershipMessage.fromDataTransferObject(dto);
+                return new ChatMembershipEvent(chatMembershipMessage);
         }
         return null;
     }

@@ -5,12 +5,13 @@ import com.mimteam.mimserver.model.Transferable;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TextMessage implements Transferable {
     private Integer userId;
     private Integer chatId;
     private String content;
-    private LocalDate time;
+    private LocalDateTime time;
 
     @Override
     public MessageDTO toDataTransferObject() {
@@ -55,11 +56,11 @@ public class TextMessage implements Transferable {
         this.content = content;
     }
 
-    public LocalDate getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(LocalDate time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 }

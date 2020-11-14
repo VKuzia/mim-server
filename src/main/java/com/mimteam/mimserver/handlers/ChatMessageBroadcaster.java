@@ -20,10 +20,13 @@ public class ChatMessageBroadcaster {
 
     @Subscribe
     public void handleChatMembershipMessage(@NotNull ChatMembershipEvent event) {
-        if (event.getChatMembershipMessageType() == ChatMembershipMessageType.JOIN) {
-            System.out.println(event.getUserId() + " joined " + event.getChatId());
-        } else {
-            System.out.println(event.getUserId() + " left " + event.getChatId());
+        switch (event.getChatMembershipMessageType()) {
+            case JOIN:
+                System.out.println(event.getUserId() + " joined " + event.getChatId());
+                break;
+            case LEAVE:
+                System.out.println(event.getUserId() + " left " + event.getChatId());
+                break;
         }
     }
 

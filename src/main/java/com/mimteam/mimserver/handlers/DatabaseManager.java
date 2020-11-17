@@ -5,7 +5,7 @@ import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.repositories.ChatMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.mimteam.mimserver.model.entities.СhatMessageEntity;
+import com.mimteam.mimserver.model.entities.ChatMessageEntity;
 
 @Component
 public class DatabaseManager {
@@ -18,7 +18,7 @@ public class DatabaseManager {
 
     @Subscribe
     public void saveChatMessage(SendTextMessageEvent event) {
-        СhatMessageEntity entity = new СhatMessageEntity();
+        ChatMessageEntity entity = new ChatMessageEntity();
         entity.setChatId(event.getChatId());
         entity.setSenderId(event.getUserId());
         entity.setContent(event.getContent());

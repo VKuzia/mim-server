@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(schema = "mim", name = "messages")
-public class СhatMessageEntity {
+public class ChatMessageEntity {
 
     @Id
     @GeneratedValue

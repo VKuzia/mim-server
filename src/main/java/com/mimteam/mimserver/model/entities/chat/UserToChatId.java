@@ -1,10 +1,10 @@
-package com.mimteam.mimserver.model.entities;
+package com.mimteam.mimserver.model.entities.chat;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-class UserToChatId implements Serializable {
+public class UserToChatId implements Serializable {
     private Integer userId;
     private Integer chatId;
 

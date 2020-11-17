@@ -1,10 +1,8 @@
-package com.mimteam.mimserver.model.entities;
+package com.mimteam.mimserver.model.entities.chat;
 
-import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 @Entity
 @Table(schema = "mim", name = "user_to_chat")

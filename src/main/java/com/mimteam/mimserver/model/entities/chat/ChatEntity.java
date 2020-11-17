@@ -1,4 +1,4 @@
-package com.mimteam.mimserver.model.entities;
+package com.mimteam.mimserver.model.entities.chat;
 
 
 import javax.persistence.Entity;

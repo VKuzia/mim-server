@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(schema = "mim", name = "messages")
@@ -12,19 +12,19 @@ public class СhatMessageEntity {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Integer id;
 
     private Integer chatId;
     private Integer senderId;
-    private Date date;
+    private LocalDateTime dateTime;
     private String content;
 
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -44,12 +44,12 @@ public class СhatMessageEntity {
         this.senderId = senderId;
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getContent() {
@@ -58,9 +58,5 @@ public class СhatMessageEntity {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-
-    public СhatMessageEntity() {
     }
 }

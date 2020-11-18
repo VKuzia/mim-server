@@ -14,9 +14,9 @@ public class EventHandler {
 
     @Autowired
     public EventHandler(ChatMessageBroadcaster chatMessageBroadcaster, DatabaseManager databaseManager) {
+        this.chatMessageBroadcaster = chatMessageBroadcaster;
         this.databaseManager = databaseManager;
         this.eventBus = new EventBus();
-        this.chatMessageBroadcaster = chatMessageBroadcaster;
 
         registerListeners();
     }

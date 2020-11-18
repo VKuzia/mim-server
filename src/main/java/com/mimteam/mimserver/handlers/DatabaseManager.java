@@ -30,13 +30,7 @@ public class DatabaseManager {
 
     @Subscribe
     public void handleChatMembershipEvent(@NotNull ChatMembershipEvent event) {
-        UserToChatId userToChatId = new UserToChatId();
-        userToChatId.setChatId(event.getChatId());
-        userToChatId.setUserId(event.getUserId());
-
-        UserToChatEntity entity = new UserToChatEntity();
-        entity.setId(userToChatId);
-        entity.setAdmin(false);
+        UserToChatEntity entity = new UserToChatEntity(event);
         switch (event.getChatMembershipMessageType()) {
             case JOIN:
                 usersToChatsRepository.save(entity);
@@ -49,11 +43,7 @@ public class DatabaseManager {
 
     @Subscribe
     public void saveChatMessage(@NotNull SendTextMessageEvent event) {
-        ChatMessageEntity entity = new ChatMessageEntity();
-        entity.setChatId(event.getChatId());
-        entity.setSenderId(event.getUserId());
-        entity.setContent(event.getContent());
-        entity.setDateTime(event.getDateTime());
+        ChatMessageEntity entity = new ChatMessageEntity(event);
         chatMessagesRepository.save(entity);
     }
 }

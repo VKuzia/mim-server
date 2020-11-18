@@ -1,6 +1,5 @@
 package com.mimteam.mimserver.model.entities.chat;
 
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
@@ -15,6 +14,13 @@ public class ChatEntity {
     private Integer chatId;
 
     private String name;
+
+    public ChatEntity() {}
+
+    public ChatEntity(Integer chatId, String name) {
+        this.chatId = chatId;
+        this.name = name;
+    }
 
     public Integer getChatId() {
         return chatId;

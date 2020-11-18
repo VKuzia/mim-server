@@ -1,5 +1,7 @@
 package com.mimteam.mimserver.model.entities.chat;
 
+import com.mimteam.mimserver.events.SendTextMessageEvent;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -19,13 +21,21 @@ public class ChatMessageEntity {
     private LocalDateTime dateTime;
     private String content;
 
+    public ChatMessageEntity() {}
 
-    public void setId(Integer id) {
-        this.id = id;
+    public ChatMessageEntity(SendTextMessageEvent event) {
+        this.chatId = event.getChatId();
+        this.senderId = event.getUserId();
+        this.dateTime = event.getDateTime();
+        this.content = event.getContent();
     }
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getChatId() {

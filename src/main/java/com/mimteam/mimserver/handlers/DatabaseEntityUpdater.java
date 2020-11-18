@@ -4,7 +4,6 @@ import com.google.common.eventbus.Subscribe;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
-import com.mimteam.mimserver.model.entities.chat.UserToChatId;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
 import com.mimteam.mimserver.repositories.ChatsRepository;
 import com.mimteam.mimserver.repositories.UsersToChatsRepository;
@@ -14,15 +13,15 @@ import org.springframework.stereotype.Component;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 
 @Component
-public class DatabaseManager {
+public class DatabaseEntityUpdater {
     private final ChatsRepository chatsRepository;
     private final ChatMessagesRepository chatMessagesRepository;
     private final UsersToChatsRepository usersToChatsRepository;
 
     @Autowired
-    public DatabaseManager(ChatsRepository chatsRepository,
-                           ChatMessagesRepository chatMessagesRepository,
-                           UsersToChatsRepository usersToChatsRepository) {
+    public DatabaseEntityUpdater(ChatsRepository chatsRepository,
+                                 ChatMessagesRepository chatMessagesRepository,
+                                 UsersToChatsRepository usersToChatsRepository) {
         this.chatsRepository = chatsRepository;
         this.chatMessagesRepository = chatMessagesRepository;
         this.usersToChatsRepository = usersToChatsRepository;

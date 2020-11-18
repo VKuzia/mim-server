@@ -10,12 +10,12 @@ public class EventHandler {
     private final EventBus eventBus;
 
     private final ChatMessageBroadcaster chatMessageBroadcaster;
-    private final DatabaseManager databaseManager;
+    private final DatabaseEntityUpdater databaseEntityUpdater;
 
     @Autowired
-    public EventHandler(ChatMessageBroadcaster chatMessageBroadcaster, DatabaseManager databaseManager) {
+    public EventHandler(ChatMessageBroadcaster chatMessageBroadcaster, DatabaseEntityUpdater databaseEntityUpdater) {
         this.chatMessageBroadcaster = chatMessageBroadcaster;
-        this.databaseManager = databaseManager;
+        this.databaseEntityUpdater = databaseEntityUpdater;
         this.eventBus = new EventBus();
 
         registerListeners();
@@ -27,6 +27,6 @@ public class EventHandler {
 
     private void registerListeners() {
         eventBus.register(chatMessageBroadcaster);
-        eventBus.register(databaseManager);
+        eventBus.register(databaseEntityUpdater);
     }
 }

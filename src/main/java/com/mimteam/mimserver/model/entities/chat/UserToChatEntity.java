@@ -1,10 +1,8 @@
 package com.mimteam.mimserver.model.entities.chat;
 
-import com.mimteam.mimserver.events.ChatMembershipEvent;
+import com.mimteam.mimserver.model.entities.UserEntity;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(schema = "mim", name = "user_to_chat")
@@ -15,13 +13,20 @@ public class UserToChatEntity {
 
     private boolean isAdmin;
 
+    @ManyToOne
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    UserEntity userEntity;
+
+    @ManyToOne
+    @MapsId("chatId")
+    @JoinColumn(name = "chat_id")
+    ChatEntity chatEntity;
+
     public UserToChatEntity() {}
 
-    public UserToChatEntity(ChatMembershipEvent event) {
-        UserToChatId userToChatId = new UserToChatId();
-        userToChatId.setChatId(event.getChatId());
-        userToChatId.setUserId(event.getUserId());
-        this.id = userToChatId;
+    public UserToChatEntity(UserToChatId id) {
+        this.id = id;
         this.isAdmin = false;
     }
 
@@ -39,5 +44,21 @@ public class UserToChatEntity {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public UserEntity getUserEntity() {
+        return userEntity;
+    }
+
+    public void setUserEntity(UserEntity userEntity) {
+        this.userEntity = userEntity;
+    }
+
+    public ChatEntity getChatEntity() {
+        return chatEntity;
+    }
+
+    public void setChatEntity(ChatEntity chatEntity) {
+        this.chatEntity = chatEntity;
     }
 }

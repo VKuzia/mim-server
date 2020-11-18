@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
+import com.mimteam.mimserver.model.entities.chat.UserToChatId;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
 import com.mimteam.mimserver.repositories.ChatsRepository;
 import com.mimteam.mimserver.repositories.UsersToChatsRepository;
@@ -29,7 +30,9 @@ public class DatabaseEntityUpdater {
 
     @Subscribe
     public void handleChatMembershipEvent(@NotNull ChatMembershipEvent event) {
-        UserToChatEntity entity = new UserToChatEntity(event);
+        UserToChatId userToChatId = new UserToChatId(event.getUserId(), event.getChatId());
+        UserToChatEntity entity = new UserToChatEntity(userToChatId);
+
         switch (event.getChatMembershipMessageType()) {
             case JOIN:
                 usersToChatsRepository.save(entity);

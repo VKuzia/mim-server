@@ -1,9 +1,7 @@
 package com.mimteam.mimserver.model.entities.chat;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(schema = "mim", name = "chats")
@@ -15,10 +13,12 @@ public class ChatEntity {
 
     private String name;
 
+    @OneToMany(mappedBy = "chatEntity")
+    Set<UserToChatEntity> userList;
+
     public ChatEntity() {}
 
-    public ChatEntity(Integer chatId, String name) {
-        this.chatId = chatId;
+    public ChatEntity(String name) {
         this.name = name;
     }
 
@@ -36,5 +36,9 @@ public class ChatEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<UserToChatEntity> getUserList() {
+        return userList;
     }
 }

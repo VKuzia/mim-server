@@ -12,7 +12,7 @@ public class MessageDTO {
     private Integer userId;
     private Integer chatId;
     private String content;
-    private LocalDateTime time;
+    private LocalDateTime dateTime;
 
     private ChatMembershipMessageType chatMembershipMessageType;
 
@@ -52,12 +52,12 @@ public class MessageDTO {
         this.content = content;
     }
 
-    public LocalDateTime getTime() {
-        return time;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public ChatMembershipMessageType getChatMembershipMessageType() {

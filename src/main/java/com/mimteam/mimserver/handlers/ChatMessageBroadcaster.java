@@ -3,7 +3,6 @@ package com.mimteam.mimserver.handlers;
 import com.google.common.eventbus.Subscribe;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
-import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

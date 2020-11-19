@@ -7,6 +7,7 @@ import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
 import com.mimteam.mimserver.repositories.UsersRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class UserDatabaseService {
     private final UsersRepository usersRepository;
 
+    @Autowired
     public UserDatabaseService(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
@@ -34,7 +36,6 @@ public class UserDatabaseService {
 
         UserEntity userEntity = new UserEntity(userName, login, password);
         usersRepository.save(userEntity);
-
         return ResponseBuilder.builder().ok();
     }
 

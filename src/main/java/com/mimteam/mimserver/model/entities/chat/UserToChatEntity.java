@@ -2,7 +2,12 @@ package com.mimteam.mimserver.model.entities.chat;
 
 import com.mimteam.mimserver.model.entities.UserEntity;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
 
 @Entity
 @Table(schema = "mim", name = "user_to_chat")
@@ -23,7 +28,8 @@ public class UserToChatEntity {
     @JoinColumn(name = "chat_id")
     ChatEntity chatEntity;
 
-    public UserToChatEntity() {}
+    public UserToChatEntity() {
+    }
 
     public UserToChatEntity(UserToChatId id) {
         this.id = id;

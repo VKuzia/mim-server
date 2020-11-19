@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -73,10 +74,16 @@ public class ChatController {
         return response;
     }
 
+    @GetMapping("/chats/{chatId}/userlist")
+    @ResponseBody
+    public ResponseEntity<ResponseDTO> handleUserChatList(@PathVariable Integer chatId) {
+        return chatDatabaseService.getChatUserList(chatId);
+    }
+
     @MessageMapping("/chats/{chatId}/message")
     public ResponseEntity<ResponseDTO> handleChatMessage(@Payload MessageDTO dto) {
         ResponseEntity<ResponseDTO> response = ResponseBuilder.builder().ok();
-        if (dto.getMessageType() != MessageDTO.MessageType.TEXT_MESSAGE) {
+        if (dto.getMessageType() == MessageDTO.MessageType.TEXT_MESSAGE) {
             response = messageDatabaseService.saveTextMessage(new TextMessage(dto));
         }
 
@@ -91,9 +98,7 @@ public class ChatController {
     private void postMembershipEvent(Integer userId,
                                      Integer chatId,
                                      ChatMembershipMessageType messageType) {
-        ChatMembershipMessage message = new ChatMembershipMessage(
-                userId, chatId, messageType
-        );
+        ChatMembershipMessage message = new ChatMembershipMessage(userId, chatId, messageType);
         eventHandler.post(new ChatMembershipEvent(message));
     }
 

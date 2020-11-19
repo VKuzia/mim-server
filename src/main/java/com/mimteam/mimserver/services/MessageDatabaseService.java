@@ -5,6 +5,7 @@ import com.mimteam.mimserver.model.ResponseDTO;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.messages.TextMessage;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class MessageDatabaseService {
     private final ChatMessagesRepository chatMessagesRepository;
 
+    @Autowired
     public MessageDatabaseService(ChatMessagesRepository chatMessagesRepository) {
         this.chatMessagesRepository = chatMessagesRepository;
     }

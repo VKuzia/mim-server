@@ -56,7 +56,6 @@ public class ChatMembershipService {
         userToChatEntity.setUserEntity(user.get());
         userToChatEntity.setChatEntity(chat.get());
         usersToChatsRepository.save(userToChatEntity);
-
         return ResponseBuilder.builder().ok();
     }
 
@@ -70,7 +69,6 @@ public class ChatMembershipService {
         }
 
         usersToChatsRepository.delete(userToChat.get());
-
         return ResponseBuilder.builder().ok();
     }
 }

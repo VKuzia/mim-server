@@ -13,6 +13,18 @@ public class ChatMembershipMessage implements Transferable {
         JOIN, LEAVE
     }
 
+    public ChatMembershipMessage(MessageDTO messageDto) {
+        fromDataTransferObject(messageDto);
+    }
+
+    public ChatMembershipMessage(Integer userId,
+                                 Integer chatId,
+                                 ChatMembershipMessageType chatMembershipMessageType) {
+        this.userId = userId;
+        this.chatId = chatId;
+        this.chatMembershipMessageType = chatMembershipMessageType;
+    }
+
     @Override
     public MessageDTO toDataTransferObject() {
         MessageDTO dto = new MessageDTO();

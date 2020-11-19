@@ -5,17 +5,15 @@ import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.MessageDTO;
-import com.mimteam.mimserver.model.entities.UserEntity;
-import com.mimteam.mimserver.model.entities.chat.ChatEntity;
-import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
-import com.mimteam.mimserver.model.entities.chat.UserToChatId;
+import com.mimteam.mimserver.model.ResponseBuilder;
+import com.mimteam.mimserver.model.ResponseDTO;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
+import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 import com.mimteam.mimserver.model.messages.TextMessage;
-import com.mimteam.mimserver.repositories.ChatsRepository;
-import com.mimteam.mimserver.repositories.UsersRepository;
-import com.mimteam.mimserver.repositories.UsersToChatsRepository;
+import com.mimteam.mimserver.services.ChatDatabaseService;
+import com.mimteam.mimserver.services.ChatMembershipService;
+import com.mimteam.mimserver.services.MessageDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -24,94 +22,87 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Optional;
-
 @Controller
 public class ChatController {
     private final EventHandler eventHandler;
 
-    private final ChatsRepository chatsRepository;
-    private final UsersRepository usersRepository;
-    private final UsersToChatsRepository usersToChatsRepository;
+    private final ChatDatabaseService chatDatabaseService;
+    private final ChatMembershipService chatMembershipService;
+    private final MessageDatabaseService messageDatabaseService;
 
     @Autowired
     ChatController(EventHandler eventHandler,
-                   ChatsRepository chatsRepository,
-                   UsersRepository usersRepository,
-                   UsersToChatsRepository usersToChatsRepository) {
+                   ChatDatabaseService chatDatabaseService,
+                   ChatMembershipService chatMembershipService,
+                   MessageDatabaseService messageDatabaseService) {
         this.eventHandler = eventHandler;
-        this.chatsRepository = chatsRepository;
-        this.usersRepository = usersRepository;
-        this.usersToChatsRepository = usersToChatsRepository;
+        this.chatDatabaseService = chatDatabaseService;
+        this.chatMembershipService = chatMembershipService;
+        this.messageDatabaseService = messageDatabaseService;
     }
 
     @PostMapping("/chats/create")
     @ResponseBody
-    public ResponseEntity<Integer> handleCreateChat(String chatName) {
-        Optional<ChatEntity> chat = chatsRepository.findByName(chatName);
-        if (chat.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-
-        ChatEntity chatEntity = new ChatEntity(chatName);
-        chatsRepository.save(chatEntity);
-
-        return ResponseEntity.ok(chatEntity.getChatId());
+    public ResponseEntity<ResponseDTO> handleCreateChat(String chatName) {
+        return chatDatabaseService.createChat(chatName);
     }
 
     @PostMapping("/chats/{chatId}/join")
     @ResponseBody
-    public ResponseEntity<Void> handleJoinChat(Integer userId,
-                                               @PathVariable Integer chatId) {
-        Optional<UserEntity> user = usersRepository.findById(userId);
-        Optional<ChatEntity> chat = chatsRepository.findById(chatId);
-        if (user.isEmpty() || chat.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    public ResponseEntity<ResponseDTO> handleJoinChat(Integer userId,
+                                                      @PathVariable Integer chatId) {
+        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
+        if (response.getStatusCode().is4xxClientError()) {
+            return response;
         }
 
-        UserToChatId userToChatId = new UserToChatId(userId, chatId);
-        if (usersToChatsRepository.findById(userToChatId).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-
-        UserToChatEntity userToChatEntity = new UserToChatEntity(userToChatId);
-        userToChatEntity.setUserEntity(user.get());
-        userToChatEntity.setChatEntity(chat.get());
-        usersToChatsRepository.save(userToChatEntity);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+        postMembershipEvent(userId, chatId, ChatMembershipMessageType.JOIN);
+        return response;
     }
 
     @PostMapping("/chats/{chatId}/leave")
     @ResponseBody
-    public ResponseEntity<Void> handleLeaveChat(Integer userId,
+    public ResponseEntity<ResponseDTO> handleLeaveChat(Integer userId,
                                                 @PathVariable Integer chatId) {
-        UserToChatId userToChatId = new UserToChatId(userId, chatId);
-        Optional<UserToChatEntity> userToChat = usersToChatsRepository.findById(userToChatId);
-        if (userToChat.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
+        if (response.getStatusCode().is4xxClientError()) {
+            return response;
         }
 
-        usersToChatsRepository.delete(userToChat.get());
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+        postMembershipEvent(userId, chatId, ChatMembershipMessageType.LEAVE);
+        return response;
     }
 
     @MessageMapping("/chats/{chatId}/message")
-    public void handleChatMessage(@Payload MessageDTO dto) {
+    public ResponseEntity<ResponseDTO> handleChatMessage(@Payload MessageDTO dto) {
+        ResponseEntity<ResponseDTO> response = ResponseBuilder.builder().ok();
+        if (dto.getMessageType() != MessageDTO.MessageType.TEXT_MESSAGE) {
+            response = messageDatabaseService.saveTextMessage(new TextMessage(dto));
+        }
+
+        if (response.getStatusCode().is4xxClientError()) {
+            return response;
+        }
+
         eventHandler.post(dtoToChatEvent(dto));
+        return response;
+    }
+
+    private void postMembershipEvent(Integer userId,
+                                     Integer chatId,
+                                     ChatMembershipMessageType messageType) {
+        ChatMembershipMessage message = new ChatMembershipMessage(
+                userId, chatId, messageType
+        );
+        eventHandler.post(new ChatMembershipEvent(message));
     }
 
     private ChatEvent dtoToChatEvent(MessageDTO dto) {
         switch (dto.getMessageType()) {
             case TEXT_MESSAGE:
-                TextMessage textMessage = new TextMessage();
-                textMessage.fromDataTransferObject(dto);
-                return new SendTextMessageEvent(textMessage);
+                return new SendTextMessageEvent(new TextMessage(dto));
             case CHAT_MEMBERSHIP_MESSAGE:
-                ChatMembershipMessage chatMembershipMessage = new ChatMembershipMessage();
-                chatMembershipMessage.fromDataTransferObject(dto);
-                return new ChatMembershipEvent(chatMembershipMessage);
+                return new ChatMembershipEvent(new ChatMembershipMessage(dto));
         }
         return null;
     }

@@ -82,7 +82,7 @@ public class ChatController {
 
     @MessageMapping("/chats/{chatId}/message")
     public ResponseEntity<ResponseDTO> handleChatMessage(@Payload MessageDTO dto) {
-        ResponseEntity<ResponseDTO> response = ResponseBuilder.builder().ok();
+        ResponseEntity<ResponseDTO> response = ResponseBuilder.buildSuccess();
         if (dto.getMessageType() == MessageDTO.MessageType.TEXT_MESSAGE) {
             response = chatMessageService.saveTextMessage(new TextMessage(dto));
         }

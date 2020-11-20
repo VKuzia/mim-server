@@ -1,6 +1,5 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.responses.ErrorResponseCreator;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
@@ -30,21 +29,21 @@ public class UserService {
                                                   String password) {
         Optional<UserEntity> user = usersRepository.findByLogin(login);
         if (user.isPresent()) {
-            return ErrorResponseCreator.createResponse(ResponseType.USER_ALREADY_EXISTS);
+            return ResponseBuilder.buildError(ResponseType.USER_ALREADY_EXISTS);
         }
 
         UserEntity userEntity = new UserEntity(userName, login, password);
         usersRepository.save(userEntity);
-        return ResponseBuilder.builder().ok();
+        return ResponseBuilder.buildSuccess();
     }
 
     public ResponseEntity<ResponseDTO> loginUser(String login, String password) {
         Optional<UserEntity> user = usersRepository.findByLogin(login);
         if (user.isEmpty()) {
-            return ErrorResponseCreator.createResponse(ResponseType.USER_NOT_EXISTS);
+            return ResponseBuilder.buildError(ResponseType.USER_NOT_EXISTS);
         }
         if (!user.get().getPassword().equals(password)) {
-            return ErrorResponseCreator.createResponse(ResponseType.INCORRECT_PASSWORD);
+            return ResponseBuilder.buildError(ResponseType.INCORRECT_PASSWORD);
         }
 
         return ResponseBuilder.builder()
@@ -56,7 +55,7 @@ public class UserService {
     public ResponseEntity<ResponseDTO> getChatIdList(Integer userId) {
         Optional<UserEntity> user = getUserById(userId);
         if (user.isEmpty()) {
-            return ErrorResponseCreator.createResponse(ResponseType.USER_NOT_EXISTS);
+            return ResponseBuilder.buildError(ResponseType.USER_NOT_EXISTS);
         }
 
         List<Integer> chatIdList = user.get().getChatList().stream()

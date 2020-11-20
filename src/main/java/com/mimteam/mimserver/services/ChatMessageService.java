@@ -21,6 +21,6 @@ public class ChatMessageService {
     public ResponseEntity<ResponseDTO> saveTextMessage(TextMessage textMessage) {
         ChatMessageEntity entity = new ChatMessageEntity(textMessage);
         chatMessagesRepository.save(entity);
-        return ResponseBuilder.builder().ok();
+        return ResponseBuilder.buildSuccess();
     }
 }

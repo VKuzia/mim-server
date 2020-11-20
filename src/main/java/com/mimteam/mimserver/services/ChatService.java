@@ -1,6 +1,5 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.responses.ErrorResponseCreator;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
@@ -28,7 +27,7 @@ public class ChatService {
     public ResponseEntity<ResponseDTO> createChat(String chatName) {
         Optional<ChatEntity> chat = chatsRepository.findByName(chatName);
         if (chat.isPresent()) {
-            return ErrorResponseCreator.createResponse(ResponseType.CHAT_ALREADY_EXISTS);
+            return ResponseBuilder.buildError(ResponseType.CHAT_ALREADY_EXISTS);
         }
 
         ChatEntity chatEntity = new ChatEntity(chatName);
@@ -43,7 +42,7 @@ public class ChatService {
     public ResponseEntity<ResponseDTO> getChatUserIdList(Integer chatId) {
         Optional<ChatEntity> chat = chatsRepository.findById(chatId);
         if (chat.isEmpty()) {
-            return ErrorResponseCreator.createResponse(ResponseType.CHAT_NOT_EXISTS);
+            return ResponseBuilder.buildError(ResponseType.CHAT_NOT_EXISTS);
         }
 
         List<Integer> userIdList = chat.get().getUserList().stream()

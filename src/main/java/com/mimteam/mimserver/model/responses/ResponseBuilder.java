@@ -12,6 +12,18 @@ public class ResponseBuilder {
         return new ResponseBuilder();
     }
 
+    public static ResponseEntity<ResponseDTO> buildError(ResponseDTO.ResponseType responseType) {
+        return builder()
+                .responseType(responseType)
+                .build();
+    }
+
+    public static ResponseEntity<ResponseDTO> buildSuccess() {
+        return builder()
+                .responseType(ResponseDTO.ResponseType.OK)
+                .build();
+    }
+
     public ResponseBuilder responseType(ResponseDTO.ResponseType responseType) {
         response.setResponseType(responseType);
         return this;
@@ -32,10 +44,5 @@ public class ResponseBuilder {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
-    public ResponseEntity<ResponseDTO> ok() {
-        response.setResponseType(ResponseDTO.ResponseType.OK);
-        return build();
     }
 }

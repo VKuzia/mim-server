@@ -1,7 +1,7 @@
 package com.mimteam.mimserver.controllers;
 
-import com.mimteam.mimserver.model.ResponseDTO;
-import com.mimteam.mimserver.services.UserDatabaseService;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
+import com.mimteam.mimserver.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class UserController {
-    private final UserDatabaseService userDatabaseService;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserDatabaseService userDatabaseService) {
-        this.userDatabaseService = userDatabaseService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/users/signup")
@@ -24,18 +24,18 @@ public class UserController {
     public ResponseEntity<ResponseDTO> handleUserSignUp(String userName,
                                                         String login,
                                                         String password) {
-        return userDatabaseService.signUpUser(userName, login, password);
+        return userService.signUpUser(userName, login, password);
     }
 
     @PostMapping("/users/login")
     @ResponseBody
     public ResponseEntity<ResponseDTO> handleUserLogin(String login, String password) {
-        return userDatabaseService.loginUser(login, password);
+        return userService.loginUser(login, password);
     }
 
     @GetMapping("/users/{userId}/chatlist")
     @ResponseBody
     public ResponseEntity<ResponseDTO> handleUserChatList(@PathVariable Integer userId) {
-        return userDatabaseService.getUserChatList(userId);
+        return userService.getChatIdList(userId);
     }
 }

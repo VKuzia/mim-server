@@ -5,14 +5,14 @@ import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.MessageDTO;
-import com.mimteam.mimserver.model.ResponseBuilder;
-import com.mimteam.mimserver.model.ResponseDTO;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 import com.mimteam.mimserver.model.messages.TextMessage;
-import com.mimteam.mimserver.services.ChatDatabaseService;
+import com.mimteam.mimserver.services.ChatService;
 import com.mimteam.mimserver.services.ChatMembershipService;
-import com.mimteam.mimserver.services.MessageDatabaseService;
+import com.mimteam.mimserver.services.ChatMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -27,25 +27,25 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ChatController {
     private final EventHandler eventHandler;
 
-    private final ChatDatabaseService chatDatabaseService;
+    private final ChatService chatService;
     private final ChatMembershipService chatMembershipService;
-    private final MessageDatabaseService messageDatabaseService;
+    private final ChatMessageService chatMessageService;
 
     @Autowired
     ChatController(EventHandler eventHandler,
-                   ChatDatabaseService chatDatabaseService,
+                   ChatService chatService,
                    ChatMembershipService chatMembershipService,
-                   MessageDatabaseService messageDatabaseService) {
+                   ChatMessageService chatMessageService) {
         this.eventHandler = eventHandler;
-        this.chatDatabaseService = chatDatabaseService;
+        this.chatService = chatService;
         this.chatMembershipService = chatMembershipService;
-        this.messageDatabaseService = messageDatabaseService;
+        this.chatMessageService = chatMessageService;
     }
 
     @PostMapping("/chats/create")
     @ResponseBody
     public ResponseEntity<ResponseDTO> handleCreateChat(String chatName) {
-        return chatDatabaseService.createChat(chatName);
+        return chatService.createChat(chatName);
     }
 
     @PostMapping("/chats/{chatId}/join")
@@ -77,14 +77,14 @@ public class ChatController {
     @GetMapping("/chats/{chatId}/userlist")
     @ResponseBody
     public ResponseEntity<ResponseDTO> handleUserChatList(@PathVariable Integer chatId) {
-        return chatDatabaseService.getChatUserList(chatId);
+        return chatService.getChatUserIdList(chatId);
     }
 
     @MessageMapping("/chats/{chatId}/message")
     public ResponseEntity<ResponseDTO> handleChatMessage(@Payload MessageDTO dto) {
         ResponseEntity<ResponseDTO> response = ResponseBuilder.builder().ok();
         if (dto.getMessageType() == MessageDTO.MessageType.TEXT_MESSAGE) {
-            response = messageDatabaseService.saveTextMessage(new TextMessage(dto));
+            response = chatMessageService.saveTextMessage(new TextMessage(dto));
         }
 
         if (response.getStatusCode().is4xxClientError()) {

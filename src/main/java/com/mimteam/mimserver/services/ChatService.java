@@ -1,8 +1,9 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.ResponseBuilder;
-import com.mimteam.mimserver.model.ResponseDTO;
-import com.mimteam.mimserver.model.ResponseDTO.ResponseType;
+import com.mimteam.mimserver.model.responses.ErrorResponseCreator;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
+import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -16,20 +17,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ChatDatabaseService {
+public class ChatService {
     private final ChatsRepository chatsRepository;
 
     @Autowired
-    public ChatDatabaseService(ChatsRepository chatsRepository) {
+    public ChatService(ChatsRepository chatsRepository) {
         this.chatsRepository = chatsRepository;
     }
 
     public ResponseEntity<ResponseDTO> createChat(String chatName) {
         Optional<ChatEntity> chat = chatsRepository.findByName(chatName);
         if (chat.isPresent()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.CHAT_ALREADY_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.CHAT_ALREADY_EXISTS);
         }
 
         ChatEntity chatEntity = new ChatEntity(chatName);
@@ -41,12 +40,10 @@ public class ChatDatabaseService {
                 .build();
     }
 
-    public ResponseEntity<ResponseDTO> getChatUserList(Integer chatId) {
+    public ResponseEntity<ResponseDTO> getChatUserIdList(Integer chatId) {
         Optional<ChatEntity> chat = chatsRepository.findById(chatId);
         if (chat.isEmpty()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.CHAT_NOT_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.CHAT_NOT_EXISTS);
         }
 
         List<Integer> userIdList = chat.get().getUserList().stream()

@@ -1,4 +1,4 @@
-package com.mimteam.mimserver.model;
+package com.mimteam.mimserver.model.responses;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

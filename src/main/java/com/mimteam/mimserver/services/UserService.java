@@ -1,8 +1,9 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.ResponseBuilder;
-import com.mimteam.mimserver.model.ResponseDTO;
-import com.mimteam.mimserver.model.ResponseDTO.ResponseType;
+import com.mimteam.mimserver.model.responses.ErrorResponseCreator;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
+import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -16,11 +17,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserDatabaseService {
+public class UserService {
     private final UsersRepository usersRepository;
 
     @Autowired
-    public UserDatabaseService(UsersRepository usersRepository) {
+    public UserService(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
 
@@ -29,9 +30,7 @@ public class UserDatabaseService {
                                                   String password) {
         Optional<UserEntity> user = usersRepository.findByLogin(login);
         if (user.isPresent()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.USER_ALREADY_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.USER_ALREADY_EXISTS);
         }
 
         UserEntity userEntity = new UserEntity(userName, login, password);
@@ -42,14 +41,10 @@ public class UserDatabaseService {
     public ResponseEntity<ResponseDTO> loginUser(String login, String password) {
         Optional<UserEntity> user = usersRepository.findByLogin(login);
         if (user.isEmpty()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.USER_NOT_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.USER_NOT_EXISTS);
         }
         if (!user.get().getPassword().equals(password)) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.INCORRECT_PASSWORD)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.INCORRECT_PASSWORD);
         }
 
         return ResponseBuilder.builder()
@@ -58,12 +53,10 @@ public class UserDatabaseService {
                 .build();
     }
 
-    public ResponseEntity<ResponseDTO> getUserChatList(Integer userId) {
+    public ResponseEntity<ResponseDTO> getChatIdList(Integer userId) {
         Optional<UserEntity> user = getUserById(userId);
         if (user.isEmpty()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.USER_NOT_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.USER_NOT_EXISTS);
         }
 
         List<Integer> chatIdList = user.get().getChatList().stream()

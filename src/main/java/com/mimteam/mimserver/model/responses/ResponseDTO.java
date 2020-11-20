@@ -1,4 +1,4 @@
-package com.mimteam.mimserver.model;
+package com.mimteam.mimserver.model.responses;
 
 public class ResponseDTO {
     private ResponseType responseType;

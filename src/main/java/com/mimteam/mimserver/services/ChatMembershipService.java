@@ -1,8 +1,9 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.ResponseBuilder;
-import com.mimteam.mimserver.model.ResponseDTO;
-import com.mimteam.mimserver.model.ResponseDTO.ResponseType;
+import com.mimteam.mimserver.model.responses.ErrorResponseCreator;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
+import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -16,40 +17,34 @@ import java.util.Optional;
 
 @Service
 public class ChatMembershipService {
-    private final UserDatabaseService userDatabaseService;
-    private final ChatDatabaseService chatDatabaseService;
+    private final UserService userService;
+    private final ChatService chatService;
 
     private final UsersToChatsRepository usersToChatsRepository;
 
     @Autowired
-    public ChatMembershipService(UserDatabaseService userDatabaseService,
-                                 ChatDatabaseService chatDatabaseService,
+    public ChatMembershipService(UserService userService,
+                                 ChatService chatService,
                                  UsersToChatsRepository usersToChatsRepository) {
-        this.userDatabaseService = userDatabaseService;
-        this.chatDatabaseService = chatDatabaseService;
+        this.userService = userService;
+        this.chatService = chatService;
         this.usersToChatsRepository = usersToChatsRepository;
     }
 
     public ResponseEntity<ResponseDTO> joinChat(Integer userId, Integer chatId) {
-        Optional<UserEntity> user = userDatabaseService.getUserById(userId);
+        Optional<UserEntity> user = userService.getUserById(userId);
         if (user.isEmpty()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.USER_NOT_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.USER_NOT_EXISTS);
         }
 
-        Optional<ChatEntity> chat = chatDatabaseService.getChatById(chatId);
+        Optional<ChatEntity> chat = chatService.getChatById(chatId);
         if (chat.isEmpty()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.CHAT_NOT_EXISTS)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.CHAT_NOT_EXISTS);
         }
 
         UserToChatId userToChatId = new UserToChatId(userId, chatId);
         if (usersToChatsRepository.findById(userToChatId).isPresent()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.USER_ALREADY_IN_CHAT)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.USER_ALREADY_IN_CHAT);
         }
 
         UserToChatEntity userToChatEntity = new UserToChatEntity(userToChatId);
@@ -63,9 +58,7 @@ public class ChatMembershipService {
         UserToChatId userToChatId = new UserToChatId(userId, chatId);
         Optional<UserToChatEntity> userToChat = usersToChatsRepository.findById(userToChatId);
         if (userToChat.isEmpty()) {
-            return ResponseBuilder.builder()
-                    .responseType(ResponseType.USER_NOT_IN_CHAT)
-                    .build();
+            return ErrorResponseCreator.createResponse(ResponseType.USER_NOT_IN_CHAT);
         }
 
         usersToChatsRepository.delete(userToChat.get());

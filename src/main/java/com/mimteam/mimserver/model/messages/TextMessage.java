@@ -13,7 +13,7 @@ public class TextMessage implements Transferable {
     private LocalDateTime dateTime;
 
     public TextMessage(MessageDTO messageDto) {
-        this.fromDataTransferObject(messageDto);
+        fromDataTransferObject(messageDto);
     }
 
     @Override

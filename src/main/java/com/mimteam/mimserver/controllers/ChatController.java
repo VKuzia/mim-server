@@ -53,11 +53,10 @@ public class ChatController {
     public ResponseEntity<ResponseDTO> handleJoinChat(Integer userId,
                                                       @PathVariable Integer chatId) {
         ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
-        if (response.getStatusCode().is4xxClientError()) {
-            return response;
+        if (response.getStatusCode().is2xxSuccessful()) {
+            postMembershipEvent(userId, chatId, ChatMembershipMessageType.JOIN);
         }
 
-        postMembershipEvent(userId, chatId, ChatMembershipMessageType.JOIN);
         return response;
     }
 
@@ -66,11 +65,10 @@ public class ChatController {
     public ResponseEntity<ResponseDTO> handleLeaveChat(Integer userId,
                                                 @PathVariable Integer chatId) {
         ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
-        if (response.getStatusCode().is4xxClientError()) {
-            return response;
+        if (response.getStatusCode().is2xxSuccessful()) {
+            postMembershipEvent(userId, chatId, ChatMembershipMessageType.LEAVE);
         }
 
-        postMembershipEvent(userId, chatId, ChatMembershipMessageType.LEAVE);
         return response;
     }
 
@@ -87,11 +85,9 @@ public class ChatController {
             response = chatMessageService.saveTextMessage(new TextMessage(dto));
         }
 
-        if (response.getStatusCode().is4xxClientError()) {
-            return response;
+        if (response.getStatusCode().is2xxSuccessful()) {
+            eventHandler.post(dtoToChatEvent(dto));
         }
-
-        eventHandler.post(dtoToChatEvent(dto));
         return response;
     }
 

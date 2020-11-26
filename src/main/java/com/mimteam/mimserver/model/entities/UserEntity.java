@@ -1,10 +1,14 @@
 package com.mimteam.mimserver.model.entities;
 
+import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(schema = "mim", name = "users")
@@ -16,8 +20,20 @@ public class UserEntity {
 
     private String name;
     private String login;
-    private String passwordHash;
+    private String password;
     private LocalDateTime lastOnline;
+
+    @OneToMany(mappedBy = "userEntity")
+    Set<UserToChatEntity> chatList;
+
+    public UserEntity() {
+    }
+
+    public UserEntity(String name, String login, String password) {
+        this.name = name;
+        this.login = login;
+        this.password = password;
+    }
 
     public Integer getUserId() {
         return userId;
@@ -43,12 +59,12 @@ public class UserEntity {
         this.login = login;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public LocalDateTime getLastOnline() {
@@ -57,5 +73,9 @@ public class UserEntity {
 
     public void setLastOnline(LocalDateTime lastOnline) {
         this.lastOnline = lastOnline;
+    }
+
+    public Set<UserToChatEntity> getChatList() {
+        return chatList;
     }
 }

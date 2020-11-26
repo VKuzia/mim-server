@@ -8,6 +8,14 @@ public class UserToChatId implements Serializable {
     private Integer userId;
     private Integer chatId;
 
+    public UserToChatId() {
+    }
+
+    public UserToChatId(Integer userId, Integer chatId) {
+        this.userId = userId;
+        this.chatId = chatId;
+    }
+
     public Integer getUserId() {
         return userId;
     }

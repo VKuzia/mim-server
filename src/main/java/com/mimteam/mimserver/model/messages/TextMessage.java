@@ -12,6 +12,10 @@ public class TextMessage implements Transferable {
     private String content;
     private LocalDateTime dateTime;
 
+    public TextMessage(MessageDTO messageDto) {
+        fromDataTransferObject(messageDto);
+    }
+
     @Override
     public MessageDTO toDataTransferObject() {
         MessageDTO dto = new MessageDTO();

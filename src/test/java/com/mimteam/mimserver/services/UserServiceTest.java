@@ -34,11 +34,11 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    public static final String name = "Name";
-    public static final String login = "login";
-    public static final String password = "password";
-    public static final String incorrectPassword = "incorrect_password";
-    public static final Integer userId = 1;
+    private static final String name = "Name";
+    private static final String login = "login";
+    private static final String password = "password";
+    private static final String incorrectPassword = "incorrect_password";
+    private static final Integer userId = 1;
 
     private final UserEntity userEntity = new UserEntity(name, login, password);
 

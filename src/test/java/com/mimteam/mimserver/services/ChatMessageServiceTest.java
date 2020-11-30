@@ -25,9 +25,9 @@ public class ChatMessageServiceTest {
     @InjectMocks
     private ChatMessageService chatMessageService;
 
-    public static final int chatId = 1;
-    public static final int userId = 1;
-    public static final String content = "Message Text";
+    private static final int chatId = 1;
+    private static final int userId = 1;
+    private static final String content = "Message Text";
 
     private TextMessage textMessage;
 

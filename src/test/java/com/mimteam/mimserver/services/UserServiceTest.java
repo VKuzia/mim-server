@@ -134,14 +134,13 @@ public class UserServiceTest {
         Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(new ArrayList<>().toString(), response.getBody().getResponseMessage());
+
+        Mockito.verify(usersRepository).findById(userId);
     }
 
     @Test
     public void getChatIdListNonEmpty() {
-        ArrayList<Integer> expectedChatIdList = new ArrayList<>();
-        expectedChatIdList.add(4);
-        expectedChatIdList.add(1);
-
+        ArrayList<Integer> expectedChatIdList = new ArrayList<>(Arrays.asList(4, 1));
         Set<UserToChatEntity> userToChatIds = getChatsForUser(expectedChatIdList);
 
         UserEntity spyUserEntity = Mockito.spy(userEntity);
@@ -156,6 +155,8 @@ public class UserServiceTest {
         expectedChatIdList.sort(Integer::compareTo);
         actualChatIdList.sort(Integer::compareTo);
         Assertions.assertEquals(expectedChatIdList, actualChatIdList);
+
+        Mockito.verify(usersRepository).findById(userId);
     }
 
     private List<Integer> parseChatIdList(String list) {

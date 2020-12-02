@@ -3,6 +3,11 @@ language: java
 jdk:
   - oraclejdk11
 
+jobs:
+  include:
+    - stage: test
+      script: ./gradlew test --rerun-tasks
+
 cache:
   directories:
     - $HOME/.m2

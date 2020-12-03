@@ -13,6 +13,7 @@ import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.ChatsRepository;
 import com.mimteam.mimserver.repositories.UsersRepository;
 import com.mimteam.mimserver.repositories.UsersToChatsRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,12 +61,15 @@ class ChatControllerTest {
 
     @BeforeEach
     public void init() {
+        userEntity = new UserEntity(userName, login, password);
+        chatEntity = new ChatEntity(chatName);
+    }
+
+    @AfterEach
+    public void tearDown() {
         usersToChatsRepository.deleteAll();
         chatsRepository.deleteAll();
         usersRepository.deleteAll();
-
-        userEntity = new UserEntity(userName, login, password);
-        chatEntity = new ChatEntity(chatName);
     }
 
     @Test

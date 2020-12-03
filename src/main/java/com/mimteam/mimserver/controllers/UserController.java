@@ -1,12 +1,13 @@
 package com.mimteam.mimserver.controllers;
 
+import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -33,9 +34,10 @@ public class UserController {
         return userService.loginUser(login, password);
     }
 
-    @GetMapping("/users/{userId}/chatlist")
+    @GetMapping("/users/chatlist")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleUserChatList(@PathVariable Integer userId) {
-        return userService.getChatIdList(userId);
+    public ResponseEntity<ResponseDTO> handleUserChatList(Authentication authentication) {
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        return userService.getChatIdList(user.getUserId());
     }
 }

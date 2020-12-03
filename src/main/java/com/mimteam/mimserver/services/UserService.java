@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,9 +47,13 @@ public class UserService {
             return ResponseBuilder.buildError(ResponseType.INCORRECT_PASSWORD);
         }
 
+        String token = UUID.randomUUID().toString();
+        user.get().setToken(token);
+        usersRepository.save(user.get());
+
         return ResponseBuilder.builder()
                 .responseType(ResponseType.OK)
-                .body(user.get().getUserId())
+                .stringBody(token)
                 .build();
     }
 
@@ -71,5 +76,9 @@ public class UserService {
 
     public Optional<UserEntity> getUserById(Integer userId) {
         return usersRepository.findById(userId);
+    }
+
+    public Optional<UserEntity> getUserByToken(String token) {
+        return usersRepository.findByToken(token);
     }
 }

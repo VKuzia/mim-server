@@ -39,6 +39,11 @@ public class ResponseBuilder {
         return this;
     }
 
+    public ResponseBuilder stringBody(String value) {
+        response.setResponseMessage(value);
+        return this;
+    }
+
     public ResponseEntity<ResponseDTO> build() {
         if (response.getResponseType() == ResponseDTO.ResponseType.OK) {
             return ResponseEntity.ok(response);

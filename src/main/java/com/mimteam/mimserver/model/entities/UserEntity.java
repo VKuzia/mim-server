@@ -23,6 +23,8 @@ public class UserEntity {
     private String password;
     private LocalDateTime lastOnline;
 
+    private String token;
+
     @OneToMany(mappedBy = "userEntity")
     Set<UserToChatEntity> chatList;
 
@@ -73,6 +75,14 @@ public class UserEntity {
 
     public void setLastOnline(LocalDateTime lastOnline) {
         this.lastOnline = lastOnline;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Set<UserToChatEntity> getChatList() {

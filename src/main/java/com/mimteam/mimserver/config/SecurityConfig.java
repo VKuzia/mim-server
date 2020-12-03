@@ -16,12 +16,16 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final RequestMatcher noAuthenticationMatcher = new AntPathRequestMatcher("/users/login");
+    private final RequestMatcher noAuthenticationMatcher = new OrRequestMatcher(
+            new AntPathRequestMatcher("/users/signup"),
+            new AntPathRequestMatcher("/users/login")
+    );
 
     private final AuthenticationProvider authenticationProvider;
 

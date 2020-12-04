@@ -4,6 +4,7 @@ import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatId;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.UsersToChatsRepository;
 import org.junit.jupiter.api.Assertions;
@@ -13,8 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
@@ -35,12 +38,18 @@ class ChatMembershipServiceTest {
     private static final Integer userId = 1;
     private static final Integer chatId = 2;
 
+    private ResponseEntity<ResponseDTO> errorResponseEntity;
+    private ResponseEntity<ResponseDTO> successResponseEntity;
+
     private UserEntity userEntity;
     private ChatEntity chatEntity;
     private UserToChatEntity userToChatEntity;
 
     @BeforeEach
     public void init() {
+        errorResponseEntity = ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        successResponseEntity = ResponseEntity.ok().build();
+
         userEntity = new UserEntity();
         userEntity.setUserId(userId);
         chatEntity = new ChatEntity();
@@ -56,10 +65,13 @@ class ChatMembershipServiceTest {
         Mockito.when(userService.getUserById(Mockito.anyInt())).thenReturn(Optional.empty());
         Mockito.lenient().when(chatService.getChatById(Mockito.anyInt())).thenReturn(Optional.of(chatEntity));
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
-        Assertions.assertFalse(response.getStatusCode().is2xxSuccessful());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(ResponseDTO.ResponseType.USER_NOT_EXISTS, response.getBody().getResponseType());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_EXISTS))
+                    .thenReturn(errorResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
+            Assertions.assertEquals(errorResponseEntity, response);
+        }
 
         Mockito.verify(userService).getUserById(userId);
         Mockito.verify(usersToChatsRepository, Mockito.never()).save(Mockito.any());
@@ -70,10 +82,13 @@ class ChatMembershipServiceTest {
         Mockito.lenient().when(userService.getUserById(Mockito.anyInt())).thenReturn(Optional.of(userEntity));
         Mockito.when(chatService.getChatById(Mockito.anyInt())).thenReturn(Optional.empty());
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
-        Assertions.assertFalse(response.getStatusCode().is2xxSuccessful());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(ResponseDTO.ResponseType.CHAT_NOT_EXISTS, response.getBody().getResponseType());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.CHAT_NOT_EXISTS))
+                    .thenReturn(errorResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
+            Assertions.assertEquals(errorResponseEntity, response);
+        }
 
         Mockito.verify(chatService).getChatById(chatId);
         Mockito.verify(usersToChatsRepository, Mockito.never()).save(Mockito.any());
@@ -86,10 +101,13 @@ class ChatMembershipServiceTest {
         Mockito.when(usersToChatsRepository.findById(Mockito.any(UserToChatId.class)))
                 .thenReturn(Optional.of(userToChatEntity));
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
-        Assertions.assertFalse(response.getStatusCode().is2xxSuccessful());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(ResponseDTO.ResponseType.USER_ALREADY_IN_CHAT, response.getBody().getResponseType());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_ALREADY_IN_CHAT))
+                    .thenReturn(errorResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
+            Assertions.assertEquals(errorResponseEntity, response);
+        }
 
         Mockito.verify(userService).getUserById(userId);
         Mockito.verify(chatService).getChatById(chatId);
@@ -102,8 +120,12 @@ class ChatMembershipServiceTest {
         Mockito.when(chatService.getChatById(Mockito.anyInt())).thenReturn(Optional.of(chatEntity));
         Mockito.when(usersToChatsRepository.findById(Mockito.any(UserToChatId.class))).thenReturn(Optional.empty());
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
-        Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(ResponseBuilder::buildSuccess).thenReturn(successResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
+            Assertions.assertEquals(successResponseEntity, response);
+        }
 
         ArgumentCaptor<UserToChatEntity> userToChatCaptor = ArgumentCaptor.forClass(UserToChatEntity.class);
         Mockito.verify(userService).getUserById(userId);
@@ -120,10 +142,13 @@ class ChatMembershipServiceTest {
     public void leaveChatUserNotInChat() {
         Mockito.when(usersToChatsRepository.findById(Mockito.any(UserToChatId.class))).thenReturn(Optional.empty());
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
-        Assertions.assertFalse(response.getStatusCode().is2xxSuccessful());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(ResponseDTO.ResponseType.USER_NOT_IN_CHAT, response.getBody().getResponseType());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_IN_CHAT))
+                    .thenReturn(errorResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
+            Assertions.assertEquals(errorResponseEntity, response);
+        }
 
         ArgumentCaptor<UserToChatId> idCaptor = ArgumentCaptor.forClass(UserToChatId.class);
         Mockito.verify(usersToChatsRepository).findById(idCaptor.capture());
@@ -138,8 +163,12 @@ class ChatMembershipServiceTest {
         Mockito.when(usersToChatsRepository.findById(Mockito.any(UserToChatId.class)))
                 .thenReturn(Optional.of(userToChatEntity));
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
-        Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(ResponseBuilder::buildSuccess).thenReturn(successResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
+            Assertions.assertEquals(successResponseEntity, response);
+        }
 
         ArgumentCaptor<UserToChatId> idCaptor = ArgumentCaptor.forClass(UserToChatId.class);
         ArgumentCaptor<UserToChatEntity> userToChatCaptor = ArgumentCaptor.forClass(UserToChatEntity.class);

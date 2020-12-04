@@ -3,6 +3,7 @@ package com.mimteam.mimserver.services;
 import com.mimteam.mimserver.model.MessageDTO;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.messages.TextMessage;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
 import org.junit.jupiter.api.Assertions;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +31,13 @@ public class ChatMessageServiceTest {
     private static final int userId = 1;
     private static final String content = "Message Text";
 
+    private ResponseEntity<ResponseDTO> successResponseEntity;
     private TextMessage textMessage;
 
     @BeforeEach
     public void init() {
+        successResponseEntity = ResponseEntity.ok().build();
+
         MessageDTO testMessageDto = new MessageDTO();
         testMessageDto.setChatId(chatId);
         testMessageDto.setUserId(userId);
@@ -42,8 +47,12 @@ public class ChatMessageServiceTest {
 
     @Test
     public void textMessageSavedSuccess() {
-        ResponseEntity<ResponseDTO> response = chatMessageService.saveTextMessage(textMessage);
-        Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
+        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
+            responseBuilder.when(ResponseBuilder::buildSuccess).thenReturn(successResponseEntity);
+
+            ResponseEntity<ResponseDTO> response = chatMessageService.saveTextMessage(textMessage);
+            Assertions.assertEquals(successResponseEntity, response);
+        }
 
         ArgumentCaptor<ChatMessageEntity> messageCaptor = ArgumentCaptor.forClass(ChatMessageEntity.class);
         Mockito.verify(chatMessagesRepository).save(messageCaptor.capture());

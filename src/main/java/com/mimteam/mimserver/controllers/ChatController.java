@@ -91,6 +91,11 @@ public class ChatController {
         return response;
     }
 
+    @PostMapping("/chats/{chatId}/messages")
+    public ResponseEntity<ResponseDTO> handleChatHistory(@PathVariable Integer chatId) {
+        return chatMessageService.getMessageList(chatId);
+    }
+
     private void postMembershipEvent(Integer userId,
                                      Integer chatId,
                                      ChatMembershipMessageType messageType) {

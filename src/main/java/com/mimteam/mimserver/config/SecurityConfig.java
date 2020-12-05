@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    AuthenticationFilter authenticationFilter() throws Exception {
+    protected AuthenticationFilter authenticationFilter() throws Exception {
         NegatedRequestMatcher requestMatcher = new NegatedRequestMatcher(noAuthenticationMatcher);
 
         final AuthenticationFilter filter = new AuthenticationFilter(requestMatcher);
@@ -68,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    AuthenticationEntryPoint forbiddenEntryPoint() {
+    protected AuthenticationEntryPoint forbiddenEntryPoint() {
         return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
     }
 }

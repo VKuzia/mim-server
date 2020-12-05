@@ -31,7 +31,7 @@ public class AuthenticationFilter extends AbstractAuthenticationProcessingFilter
                 () -> new BadCredentialsException("No token provided"));
         String token = authenticationHeaderValue.replace(TOKEN_PREFIX, "").trim();
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(token, token);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(null, token);
         return getAuthenticationManager().authenticate(authentication);
     }
 

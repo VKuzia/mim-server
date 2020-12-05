@@ -91,8 +91,9 @@ public class ChatController {
         return response;
     }
 
-    @PostMapping("/chats/{chatId}/messages")
-    public ResponseEntity<ResponseDTO> handleChatHistory(@PathVariable Integer chatId) {
+    @GetMapping("/chats/{chatId}/messages")
+    @ResponseBody
+    public ResponseEntity<ResponseDTO> handleMessageHistory(@PathVariable Integer chatId) {
         return chatMessageService.getMessageList(chatId);
     }
 

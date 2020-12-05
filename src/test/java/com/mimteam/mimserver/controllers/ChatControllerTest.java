@@ -74,10 +74,6 @@ class ChatControllerTest {
         chatMessagesRepository.save(chatMessageEntity1);
         chatMessagesRepository.save(chatMessageEntity2);
 
-        ChatMessageEntity messageEntityFromAnotherChat = new ChatMessageEntity();
-        messageEntityFromAnotherChat.setChatId(2);
-        messageEntityFromAnotherChat.setContent(content2);
-
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/"
                 + chatMessageEntity1.getChatId() + "/messages"))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
@@ -87,8 +83,8 @@ class ChatControllerTest {
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDto.getResponseType());
         Assertions.assertNotNull(responseDto.getResponseMessage());
 
-        String correctResponseMessage = "[" + "\"" +  chatMessageEntity1.getContent() +
-                "\"" + "," + "\"" + chatMessageEntity2.getContent() + "\"" + "]";
+        String correctResponseMessage = "[" + chatMessageEntityToString(chatMessageEntity1) + "," +
+                chatMessageEntityToString(chatMessageEntity2) + "]";
         Assertions.assertEquals(correctResponseMessage, responseDto.getResponseMessage());
     }
 
@@ -96,5 +92,13 @@ class ChatControllerTest {
             throws UnsupportedEncodingException, JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseDTO.class);
+    }
+
+    private String chatMessageEntityToString(ChatMessageEntity chatMessageEntity) {
+        return "{" + "\"" + "id" + "\"" + ":" + chatMessageEntity.getId() +
+                "," + "\"" + "chatId" + "\"" + ":" + chatMessageEntity.getChatId() +
+                "," + "\"" + "senderId" + "\"" + ":" + chatMessageEntity.getSenderId() +
+                "," + "\"" + "dateTime" + "\"" + ":" + chatMessageEntity.getDateTime() +
+                "," + "\"" + "content" + "\"" + ":" + "\"" + chatMessageEntity.getContent() + "\"" + "}";
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatMessageService {
@@ -28,15 +27,11 @@ public class ChatMessageService {
     }
 
     public ResponseEntity<ResponseDTO> getMessageList(Integer chatId) {
-        List<ChatMessageEntity> chat = chatMessagesRepository.findByChatId(chatId);
-
-        List<String> messages = chat.stream()
-                .map(ChatMessageEntity::getContent)
-                .collect(Collectors.toList());
+        List<ChatMessageEntity> messageEntities = chatMessagesRepository.findByChatId(chatId);
 
         return ResponseBuilder.builder()
                 .responseType(ResponseDTO.ResponseType.OK)
-                .body(messages)
+                .body(messageEntities)
                 .build();
     }
 }

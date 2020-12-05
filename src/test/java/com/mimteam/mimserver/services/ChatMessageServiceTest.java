@@ -34,8 +34,12 @@ public class ChatMessageServiceTest {
     private static final int chatId = 1;
     private static final int userId = 1;
     private static final String content = "Message Text";
-    private static final String chatMessage1 = "Message text 1";
-    private static final String chatMessage2 = "Message text 2";
+
+    private final String content1 = "Text message1";
+    private final String content2 = "Text message2";
+
+    private ChatMessageEntity chatMessageEntity1;
+    private ChatMessageEntity chatMessageEntity2;
 
     private ResponseEntity<ResponseDTO> successResponseEntity;
     private TextMessage textMessage;
@@ -48,7 +52,16 @@ public class ChatMessageServiceTest {
         testMessageDto.setChatId(chatId);
         testMessageDto.setUserId(userId);
         testMessageDto.setContent(content);
+
         textMessage = new TextMessage(testMessageDto);
+
+        chatMessageEntity1 = new ChatMessageEntity();
+        chatMessageEntity1.setChatId(chatId);
+        chatMessageEntity1.setContent(content1);
+
+        chatMessageEntity2 = new ChatMessageEntity();
+        chatMessageEntity2.setChatId(chatId);
+        chatMessageEntity2.setContent(content2);
     }
 
     @Test
@@ -85,9 +98,10 @@ public class ChatMessageServiceTest {
 
     @Test
     public void getMessagesNotEmpty() {
-        ArrayList<String> expectedMessageList = new ArrayList<>(Arrays.asList(chatMessage1, chatMessage2));
-        List<ChatMessageEntity> spyChatMessageEntities = createSpyChatMessageEntitiesList();
-        Mockito.when(chatMessagesRepository.findByChatId(Mockito.anyInt())).thenReturn(spyChatMessageEntities);
+        List<ChatMessageEntity> expectedMessageList =
+                new ArrayList<>(Arrays.asList(chatMessageEntity1, chatMessageEntity2));
+
+        Mockito.when(chatMessagesRepository.findByChatId(Mockito.anyInt())).thenReturn(expectedMessageList);
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
             ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(expectedMessageList);
@@ -106,17 +120,5 @@ public class ChatMessageServiceTest {
         Mockito.when(responseBuilder.body(body)).thenReturn(responseBuilder);
         Mockito.when(responseBuilder.build()).thenReturn(successResponseEntity);
         return responseBuilder;
-    }
-
-    private List<ChatMessageEntity> createSpyChatMessageEntitiesList() {
-        ChatMessageEntity spyChatMessageEntity1 = Mockito.spy(ChatMessageEntity.class);
-        spyChatMessageEntity1.setChatId(chatId);
-        spyChatMessageEntity1.setContent(chatMessage1);
-
-        ChatMessageEntity spyChatMessageEntity2 = Mockito.spy(ChatMessageEntity.class);
-        spyChatMessageEntity2.setChatId(chatId);
-        spyChatMessageEntity2.setContent(chatMessage2);
-
-        return new ArrayList<>(Arrays.asList(spyChatMessageEntity1, spyChatMessageEntity2));
     }
 }

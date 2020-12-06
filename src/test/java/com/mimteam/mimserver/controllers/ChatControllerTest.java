@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -74,8 +76,7 @@ class ChatControllerTest {
         chatMessagesRepository.save(chatMessageEntity1);
         chatMessagesRepository.save(chatMessageEntity2);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/"
-                + chatMessageEntity1.getChatId() + "/messages"))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatId + "/messages"))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
         ResponseDTO responseDto = parseResponseDto(result);
@@ -83,9 +84,9 @@ class ChatControllerTest {
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDto.getResponseType());
         Assertions.assertNotNull(responseDto.getResponseMessage());
 
-        String correctResponseMessage = "[" + chatMessageEntityToString(chatMessageEntity1) + "," +
-                chatMessageEntityToString(chatMessageEntity2) + "]";
-        Assertions.assertEquals(correctResponseMessage, responseDto.getResponseMessage());
+        String expectedResponseMessage =
+                chatMessageEntitiesToString(Arrays.asList(chatMessageEntity1, chatMessageEntity2));
+        Assertions.assertEquals(expectedResponseMessage, responseDto.getResponseMessage());
     }
 
     private ResponseDTO parseResponseDto(MvcResult mvcResult)
@@ -94,11 +95,16 @@ class ChatControllerTest {
         return objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseDTO.class);
     }
 
-    private String chatMessageEntityToString(ChatMessageEntity chatMessageEntity) {
-        return "{" + "\"" + "id" + "\"" + ":" + chatMessageEntity.getId() +
-                "," + "\"" + "chatId" + "\"" + ":" + chatMessageEntity.getChatId() +
-                "," + "\"" + "senderId" + "\"" + ":" + chatMessageEntity.getSenderId() +
-                "," + "\"" + "dateTime" + "\"" + ":" + chatMessageEntity.getDateTime() +
-                "," + "\"" + "content" + "\"" + ":" + "\"" + chatMessageEntity.getContent() + "\"" + "}";
+    private String chatMessageEntitiesToString(List<ChatMessageEntity> chatMessageEntities) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String expectedResponseMessage = "[";
+        for (int i = 0; i < chatMessageEntities.size(); i++) {
+            expectedResponseMessage += objectMapper.writeValueAsString(chatMessageEntities.get(i));
+            if (i != chatMessageEntities.size() - 1) {
+                expectedResponseMessage += ",";
+            }
+        }
+        expectedResponseMessage += "]";
+        return expectedResponseMessage;
     }
 }

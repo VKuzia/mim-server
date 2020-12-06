@@ -97,14 +97,6 @@ class ChatControllerTest {
 
     private String chatMessageEntitiesToString(List<ChatMessageEntity> chatMessageEntities) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        String expectedResponseMessage = "[";
-        for (int i = 0; i < chatMessageEntities.size(); i++) {
-            expectedResponseMessage += objectMapper.writeValueAsString(chatMessageEntities.get(i));
-            if (i != chatMessageEntities.size() - 1) {
-                expectedResponseMessage += ",";
-            }
-        }
-        expectedResponseMessage += "]";
-        return expectedResponseMessage;
+        return objectMapper.writeValueAsString(chatMessageEntities);
     }
 }

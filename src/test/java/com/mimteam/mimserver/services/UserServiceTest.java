@@ -125,7 +125,7 @@ public class UserServiceTest {
         Mockito.when(usersRepository.findByLogin(Mockito.any())).thenReturn(Optional.of(userEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(userId);
+            ResponseBuilder mockResponseBuilder = createAnyStringSuccessResponseBuilder();
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
             ResponseEntity<ResponseDTO> response = userService.loginUser(login, password);
@@ -157,7 +157,7 @@ public class UserServiceTest {
         Mockito.when(usersRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(spyUserEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(new ArrayList<>());
+            ResponseBuilder mockResponseBuilder = createObjectSuccessResponseBuilder(new ArrayList<>());
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
             ResponseEntity<ResponseDTO> response = userService.getChatIdList(userId);
@@ -178,7 +178,7 @@ public class UserServiceTest {
         Mockito.when(usersRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(spyUserEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(expectedChatIdList);
+            ResponseBuilder mockResponseBuilder = createObjectSuccessResponseBuilder(expectedChatIdList);
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
             ResponseEntity<ResponseDTO> response = userService.getChatIdList(userId);
@@ -209,11 +209,22 @@ public class UserServiceTest {
         Mockito.verify(usersRepository).findById(userId);
     }
 
-    private ResponseBuilder createMockSuccessResponseBuilder(Object body) {
+    private ResponseBuilder createEmptySuccessResponseBuilder() {
         ResponseBuilder responseBuilder = Mockito.mock(ResponseBuilder.class);
         Mockito.when(responseBuilder.responseType(ResponseDTO.ResponseType.OK)).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.body(body)).thenReturn(responseBuilder);
         Mockito.when(responseBuilder.build()).thenReturn(successResponseEntity);
+        return responseBuilder;
+    }
+
+    private ResponseBuilder createObjectSuccessResponseBuilder(Object body) {
+        ResponseBuilder responseBuilder = createEmptySuccessResponseBuilder();
+        Mockito.when(responseBuilder.body(body)).thenReturn(responseBuilder);
+        return responseBuilder;
+    }
+
+    private ResponseBuilder createAnyStringSuccessResponseBuilder() {
+        ResponseBuilder responseBuilder = createEmptySuccessResponseBuilder();
+        Mockito.when(responseBuilder.stringBody(Mockito.anyString())).thenReturn(responseBuilder);
         return responseBuilder;
     }
 

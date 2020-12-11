@@ -21,4 +21,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
     compile group: 'org.sonatype.nexus', name: 'google-guava-eventbus', version: '3.1.0-04'
+
+    testImplementation group: 'org.mockito', name: 'mockito-inline', version: '3.6.28'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.6.28'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }

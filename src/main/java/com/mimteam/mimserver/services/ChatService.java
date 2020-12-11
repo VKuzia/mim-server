@@ -48,6 +48,7 @@ public class ChatService {
         List<Integer> userIdList = chat.get().getUserList().stream()
                 .map(UserToChatEntity::getUserEntity)
                 .map(UserEntity::getUserId)
+                .sorted()
                 .collect(Collectors.toList());
 
         return ResponseBuilder.builder()

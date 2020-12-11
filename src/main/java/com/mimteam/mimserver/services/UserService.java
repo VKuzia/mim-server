@@ -66,6 +66,7 @@ public class UserService {
         List<Integer> chatIdList = user.get().getChatList().stream()
                 .map(UserToChatEntity::getChatEntity)
                 .map(ChatEntity::getChatId)
+                .sorted()
                 .collect(Collectors.toList());
 
         return ResponseBuilder.builder()

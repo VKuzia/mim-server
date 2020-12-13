@@ -74,7 +74,7 @@ public class ChatController {
 
     @GetMapping("/chats/{chatId}/userlist")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleUserChatList(@PathVariable Integer chatId) {
+    public ResponseEntity<ResponseDTO> getUserChatList(@PathVariable Integer chatId) {
         return chatService.getChatUserIdList(chatId);
     }
 
@@ -93,7 +93,7 @@ public class ChatController {
 
     @GetMapping("/chats/{chatId}/messages")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleMessageHistory(@PathVariable Integer chatId) {
+    public ResponseEntity<ResponseDTO> getMessageHistory(@PathVariable Integer chatId) {
         return chatMessageService.getMessageList(chatId);
     }
 

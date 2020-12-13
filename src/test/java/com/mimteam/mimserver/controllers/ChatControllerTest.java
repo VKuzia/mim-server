@@ -2,9 +2,11 @@ package com.mimteam.mimserver.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
+import com.mimteam.mimserver.repositories.ChatsRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,12 +37,16 @@ class ChatControllerTest {
     @Autowired
     private ChatMessagesRepository chatMessagesRepository;
 
+    @Autowired
+    private ChatsRepository chatsRepository;
+
     private final int chatId = 1;
     private final String content1 = "Text message1";
     private final String content2 = "Text message2";
 
     private ChatMessageEntity chatMessageEntity1;
     private ChatMessageEntity chatMessageEntity2;
+    private ChatEntity chatEntity;
 
     @BeforeEach
     public void init() {
@@ -51,16 +57,34 @@ class ChatControllerTest {
         chatMessageEntity2 = new ChatMessageEntity();
         chatMessageEntity2.setChatId(chatId);
         chatMessageEntity2.setContent(content2);
+
+        chatEntity = new ChatEntity();
+        chatEntity.setChatId(chatId);
     }
 
     @AfterEach
     public void tearDown() {
         chatMessagesRepository.deleteAll();
+        chatsRepository.deleteAll();
+    }
+
+    @Test
+    public void chatMessageListChatNotExists() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/2/messages"))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .andReturn();
+
+        ResponseDTO responseDto = parseResponseDto(result);
+
+        Assertions.assertEquals(ResponseDTO.ResponseType.CHAT_NOT_EXISTS, responseDto.getResponseType());
+        Assertions.assertNull(responseDto.getResponseMessage());
     }
 
     @Test
     public void chatMessageListEmpty() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/2/messages"))
+        chatsRepository.save(chatEntity);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/1/messages"))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
@@ -73,6 +97,7 @@ class ChatControllerTest {
 
     @Test
     void chatMessageListNotEmpty() throws Exception {
+        chatsRepository.save(chatEntity);
         chatMessagesRepository.save(chatMessageEntity1);
         chatMessagesRepository.save(chatMessageEntity2);
 

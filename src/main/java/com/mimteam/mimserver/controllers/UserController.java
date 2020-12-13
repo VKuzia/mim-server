@@ -35,7 +35,7 @@ public class UserController {
 
     @GetMapping("/users/{userId}/chatlist")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleUserChatList(@PathVariable Integer userId) {
+    public ResponseEntity<ResponseDTO> getUserChatList(@PathVariable Integer userId) {
         return userService.getChatIdList(userId);
     }
 }

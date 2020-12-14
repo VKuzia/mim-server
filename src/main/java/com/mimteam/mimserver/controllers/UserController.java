@@ -36,7 +36,7 @@ public class UserController {
 
     @GetMapping("/users/chatlist")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleUserChatList(Authentication authentication) {
+    public ResponseEntity<ResponseDTO> getUserChatList(Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
         return userService.getChatIdList(user.getUserId());
     }

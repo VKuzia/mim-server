@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface UsersRepository extends CrudRepository<UserEntity, Integer> {
     Optional<UserEntity> findByLogin(String login);
+    Optional<UserEntity> findByToken(String token);
 }

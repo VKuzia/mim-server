@@ -5,6 +5,7 @@ import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,11 +52,13 @@ public class ChatController {
 
     @PostMapping("/chats/{chatId}/join")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleJoinChat(Integer userId,
+    public ResponseEntity<ResponseDTO> handleJoinChat(Authentication authentication,
                                                       @PathVariable Integer chatId) {
-        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userId, chatId);
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+
+        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userEntity.getUserId(), chatId);
         if (response.getStatusCode().is2xxSuccessful()) {
-            postMembershipEvent(userId, chatId, ChatMembershipMessageType.JOIN);
+            postMembershipEvent(userEntity.getUserId(), chatId, ChatMembershipMessageType.JOIN);
         }
 
         return response;
@@ -62,11 +66,13 @@ public class ChatController {
 
     @PostMapping("/chats/{chatId}/leave")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleLeaveChat(Integer userId,
-                                                @PathVariable Integer chatId) {
-        ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userId, chatId);
+    public ResponseEntity<ResponseDTO> handleLeaveChat(Authentication authentication,
+                                                       @PathVariable Integer chatId) {
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+
+        ResponseEntity<ResponseDTO> response = chatMembershipService.leaveChat(userEntity.getUserId(), chatId);
         if (response.getStatusCode().is2xxSuccessful()) {
-            postMembershipEvent(userId, chatId, ChatMembershipMessageType.LEAVE);
+            postMembershipEvent(userEntity.getUserId(), chatId, ChatMembershipMessageType.LEAVE);
         }
 
         return response;

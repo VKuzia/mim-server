@@ -2,11 +2,13 @@ package com.mimteam.mimserver.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
 import com.mimteam.mimserver.repositories.ChatsRepository;
+import com.mimteam.mimserver.repositories.UsersRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,13 +39,17 @@ class ChatControllerTest {
 
     @Autowired
     private ChatMessagesRepository chatMessagesRepository;
-
     @Autowired
     private ChatsRepository chatsRepository;
+    @Autowired
+    private UsersRepository usersRepository;
 
-    private final int chatId = 1;
-    private final String content1 = "Text message1";
-    private final String content2 = "Text message2";
+    private int chatId = 1;
+    private static final String content1 = "Text message1";
+    private static final String content2 = "Text message2";
+    private static final String userUuidToken = "00000000-0000-0000-0000-000000000000";
+    private static final String authorizationHeaderToken = "Bearer " + userUuidToken;
+    private static final int userId = 1;
 
     private ChatMessageEntity chatMessageEntity1;
     private ChatMessageEntity chatMessageEntity2;
@@ -59,18 +66,24 @@ class ChatControllerTest {
         chatMessageEntity2.setContent(content2);
 
         chatEntity = new ChatEntity();
-        chatEntity.setChatId(chatId);
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUserId(userId);
+        userEntity.setToken(userUuidToken);
+        usersRepository.save(userEntity);
     }
 
     @AfterEach
     public void tearDown() {
         chatMessagesRepository.deleteAll();
         chatsRepository.deleteAll();
+        usersRepository.deleteAll();
     }
 
     @Test
     public void chatMessageListChatNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/2/messages"))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/2/messages")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andReturn();
 
@@ -83,8 +96,10 @@ class ChatControllerTest {
     @Test
     public void chatMessageListEmpty() throws Exception {
         chatsRepository.save(chatEntity);
+        chatId = chatEntity.getChatId();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/1/messages"))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatId + "/messages")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
 
@@ -98,10 +113,14 @@ class ChatControllerTest {
     @Test
     void chatMessageListNotEmpty() throws Exception {
         chatsRepository.save(chatEntity);
+        chatId = chatEntity.getChatId();
+        chatMessageEntity1.setChatId(chatId);
+        chatMessageEntity2.setChatId(chatId);
         chatMessagesRepository.save(chatMessageEntity1);
         chatMessagesRepository.save(chatMessageEntity2);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatId + "/messages"))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatId + "/messages")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
         ResponseDTO responseDto = parseResponseDto(result);

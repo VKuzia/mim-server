@@ -163,7 +163,7 @@ class ChatControllerTest {
     }
 
     @Test
-    public void chatMessageListChatNotExists() throws Exception {
+    public void getChatMessageListChatNotExists() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/2/messages")
                 .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
@@ -176,7 +176,7 @@ class ChatControllerTest {
     }
 
     @Test
-    public void chatMessageListEmpty() throws Exception {
+    public void getChatMessageListEmpty() throws Exception {
         chatsRepository.save(chatEntity);
         chatId = chatEntity.getChatId();
 
@@ -193,7 +193,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void chatMessageListNotEmpty() throws Exception {
+    public void getChatMessageListNotEmpty() throws Exception {
         chatsRepository.save(chatEntity);
         chatId = chatEntity.getChatId();
         chatMessageEntity1.setChatId(chatId);
@@ -216,7 +216,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void GetInvitationKeyChatNotExists() throws Exception {
+    public void getInvitationKeyChatNotExists() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatId + "/invitation")
                 .param("chatId", String.valueOf(chatId))
                 .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
@@ -230,7 +230,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void GetInvitationKeySuccess() throws Exception {
+    public void getInvitationKeySuccess() throws Exception {
         chatsRepository.save(chatEntity);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatEntity.getChatId() + "/invitation")

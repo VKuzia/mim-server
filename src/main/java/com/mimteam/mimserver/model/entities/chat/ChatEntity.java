@@ -15,6 +15,8 @@ public class ChatEntity {
     @GeneratedValue
     private Integer chatId;
 
+    private String invitationKey;
+
     private String name;
 
     @OneToMany(mappedBy = "chatEntity")
@@ -40,6 +42,14 @@ public class ChatEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getInvitationKey() {
+        return invitationKey;
+    }
+
+    public void setInvitationKey(String invitationKey) {
+        this.invitationKey = invitationKey;
     }
 
     public Set<UserToChatEntity> getUserList() {

@@ -4,7 +4,7 @@ import com.mimteam.mimserver.events.ChatEvent;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
-import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;

@@ -27,7 +27,7 @@ public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfi
                 .nullDestMatcher().permitAll()
                 .simpDestMatchers("/app/**").authenticated()
                 .simpSubscribeDestMatchers("/chat/**").authenticated()
-                .anyMessage().denyAll();
+                .anyMessage().authenticated();
     }
 
     @Override

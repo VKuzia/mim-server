@@ -143,7 +143,7 @@ public class UserServiceTest {
             responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_EXISTS))
                     .thenReturn(errorResponseEntity);
 
-            ResponseEntity<ResponseDTO> response = userService.getChatIdList(userId);
+            ResponseEntity<ResponseDTO> response = userService.getChatList(userId);
             Assertions.assertEquals(errorResponseEntity, response);
         }
 
@@ -160,7 +160,7 @@ public class UserServiceTest {
             ResponseBuilder mockResponseBuilder = createObjectSuccessResponseBuilder(new ArrayList<>());
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
-            ResponseEntity<ResponseDTO> response = userService.getChatIdList(userId);
+            ResponseEntity<ResponseDTO> response = userService.getChatList(userId);
             Assertions.assertEquals(successResponseEntity, response);
         }
 
@@ -181,7 +181,7 @@ public class UserServiceTest {
             ResponseBuilder mockResponseBuilder = createObjectSuccessResponseBuilder(expectedChatIdList);
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
-            ResponseEntity<ResponseDTO> response = userService.getChatIdList(userId);
+            ResponseEntity<ResponseDTO> response = userService.getChatList(userId);
             Assertions.assertEquals(successResponseEntity, response);
         }
 

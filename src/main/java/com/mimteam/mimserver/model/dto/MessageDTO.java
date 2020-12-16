@@ -1,9 +1,9 @@
-package com.mimteam.mimserver.model;
+package com.mimteam.mimserver.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MessageDTO {
@@ -12,7 +12,7 @@ public class MessageDTO {
     private Integer userId;
     private Integer chatId;
     private String content;
-    private LocalDateTime dateTime;
+    private Date dateTime;
 
     private ChatMembershipMessageType chatMembershipMessageType;
 
@@ -52,11 +52,11 @@ public class MessageDTO {
         this.content = content;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 

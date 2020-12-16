@@ -38,6 +38,6 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<ResponseDTO> getUserChatList(Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        return userService.getChatIdList(user.getUserId());
+        return userService.getChatList(user.getUserId());
     }
 }

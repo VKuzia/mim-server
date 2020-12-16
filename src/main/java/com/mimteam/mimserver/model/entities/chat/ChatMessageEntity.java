@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(schema = "mim", name = "messages")
@@ -18,7 +18,7 @@ public class ChatMessageEntity {
 
     private Integer chatId;
     private Integer senderId;
-    private LocalDateTime dateTime;
+    private Date dateTime;
     private String content;
 
     public ChatMessageEntity() {}
@@ -54,11 +54,11 @@ public class ChatMessageEntity {
         this.senderId = senderId;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 

@@ -1,6 +1,6 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.messages.TextMessage;

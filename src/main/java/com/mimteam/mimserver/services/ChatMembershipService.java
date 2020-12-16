@@ -63,4 +63,10 @@ public class ChatMembershipService {
         usersToChatsRepository.delete(userToChat.get());
         return ResponseBuilder.buildSuccess();
     }
+
+    public boolean isUserInChat(Integer chatId, Integer userId) {
+        UserToChatId userToChatId = new UserToChatId(userId, chatId);
+        Optional<UserToChatEntity> userToChat = usersToChatsRepository.findById(userToChatId);
+        return userToChat.isPresent();
+    }
 }

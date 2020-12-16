@@ -94,7 +94,12 @@ public class ChatController {
 
     @GetMapping("/chats/{chatId}/invitation")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> getChatInvitationKey(@PathVariable Integer chatId) {
+    public ResponseEntity<ResponseDTO> getChatInvitationKey(Authentication authentication,
+                                                            @PathVariable Integer chatId) {
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+        if (!chatMembershipService.isUserInChat(chatId, userEntity.getUserId())) {
+            return ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_IN_CHAT);
+        }
         return chatService.getChatInvitationKey(chatId);
     }
 

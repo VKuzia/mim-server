@@ -216,25 +216,23 @@ class ChatControllerTest {
     }
 
     @Test
-    public void getInvitationKeyChatNotExists() throws Exception {
+    public void getInvitationKeyUserNotInChat() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatId + "/invitation")
-                .param("chatId", String.valueOf(chatId))
                 .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andReturn();
 
         ResponseDTO responseDto = parseResponseDto(result);
 
-        Assertions.assertEquals(ResponseDTO.ResponseType.CHAT_NOT_EXISTS, responseDto.getResponseType());
+        Assertions.assertEquals(ResponseDTO.ResponseType.USER_NOT_IN_CHAT, responseDto.getResponseType());
         Assertions.assertNull(responseDto.getResponseMessage());
     }
 
     @Test
     public void getInvitationKeySuccess() throws Exception {
         chatsRepository.save(chatEntity);
-
+        usersToChatsRepository.save(buildUserToChatEntity(userEntity, chatEntity));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatEntity.getChatId() + "/invitation")
-                .param("chatId", String.valueOf(chatId))
                 .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();

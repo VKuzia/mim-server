@@ -2,28 +2,20 @@ package com.mimteam.mimserver.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mimteam.mimserver.events.ChatMembershipEvent;
-import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
-import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
-import com.mimteam.mimserver.model.entities.chat.UserToChatId;
-import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.ChatsRepository;
 import com.mimteam.mimserver.repositories.UsersRepository;
 import com.mimteam.mimserver.repositories.UsersToChatsRepository;
-import com.mimteam.mimserver.services.UserService;
+import org.springframework.http.HttpHeaders;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,6 +41,9 @@ public class UserControllerTest {
     @Autowired
     private UsersToChatsRepository usersToChatsRepository;
 
+    private static final String userUuidToken = "00000000-0000-0000-0000-000000000000";
+    private static final String authorizationHeaderToken = "Bearer " + userUuidToken;
+
     private static final String chatName = "Test Chat";
     private static final String userName = "Test User";
     private static final String login = "test_user";
@@ -60,6 +55,8 @@ public class UserControllerTest {
     @BeforeEach
     public void init() {
         userEntity = new UserEntity(userName, login, password);
+        userEntity.setToken(userUuidToken);
+
         chatEntity = new ChatEntity(chatName);
     }
 
@@ -71,7 +68,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void signupUserSuccess() throws Exception {
+    public void signUpUserSuccess() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/signup")
                 .param("userName", userName)
                 .param("login", login)
@@ -85,7 +82,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void signupUserAlreadyExists() throws Exception {
+    public void signUpUserAlreadyExists() throws Exception {
         usersRepository.save(userEntity);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/signup")
@@ -106,13 +103,14 @@ public class UserControllerTest {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
                 .param("login", login)
-                .param("password", password))
+                .param("password", password)
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
         ResponseDTO responseDTO = parseResponseDto(result);
 
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
-        Assertions.assertEquals(userEntity.getUserId().toString(), responseDTO.getResponseMessage());
+        Assertions.assertNotNull(responseDTO.getResponseMessage());
     }
 
     @Test
@@ -144,22 +142,12 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getChatIdListUserNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(
-                "/users/1/chatlist"))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
-                .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
-
-        Assertions.assertEquals(ResponseDTO.ResponseType.USER_NOT_EXISTS, responseDTO.getResponseType());
-    }
-
-    @Test
     public void getChatIdListEmpty() throws Exception {
         usersRepository.save(userEntity);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(
-                "/users/" + userEntity.getUserId() + "/chatlist"))
+                "/users/chatlist")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
         ResponseDTO responseDTO = parseResponseDto(result);
@@ -174,10 +162,12 @@ public class UserControllerTest {
         usersRepository.save(userEntity);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/chats/" + chatEntity.getChatId() + "/join")
-                .param("userId", userEntity.getUserId().toString()));
+                .param("userId", userEntity.getUserId().toString())
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(
-                "/users/" + userEntity.getUserId() + "/chatlist"))
+                "/users/chatlist")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
         ResponseDTO responseDTO = parseResponseDto(result);

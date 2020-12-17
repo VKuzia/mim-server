@@ -1,9 +1,9 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.model.dto.UserDTO;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
-import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
 import com.mimteam.mimserver.repositories.ChatsRepository;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,16 +40,16 @@ public class ChatService {
                 .build();
     }
 
-    public ResponseEntity<ResponseDTO> getChatUserIdList(Integer chatId) {
+    public ResponseEntity<ResponseDTO> getChatUserList(Integer chatId) {
         Optional<ChatEntity> chat = chatsRepository.findById(chatId);
         if (chat.isEmpty()) {
             return ResponseBuilder.buildError(ResponseType.CHAT_NOT_EXISTS);
         }
 
-        List<Integer> userIdList = chat.get().getUserList().stream()
+        List<UserDTO> userIdList = chat.get().getUserList().stream()
                 .map(UserToChatEntity::getUserEntity)
-                .map(UserEntity::getUserId)
-                .sorted()
+                .map(UserDTO::new)
+                .sorted(Comparator.comparing(UserDTO::getUserId))
                 .collect(Collectors.toList());
 
         return ResponseBuilder.builder()

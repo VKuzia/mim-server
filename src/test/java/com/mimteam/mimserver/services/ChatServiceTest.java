@@ -99,7 +99,7 @@ class ChatServiceTest {
             responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.CHAT_NOT_EXISTS))
                     .thenReturn(errorResponseEntity);
 
-            ResponseEntity<ResponseDTO> response = chatService.getChatUserIdList(chatId);
+            ResponseEntity<ResponseDTO> response = chatService.getChatUserList(chatId);
             Assertions.assertEquals(errorResponseEntity, response);
         }
 
@@ -116,7 +116,7 @@ class ChatServiceTest {
             ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(new ArrayList<>());
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
-            ResponseEntity<ResponseDTO> response = chatService.getChatUserIdList(chatId);
+            ResponseEntity<ResponseDTO> response = chatService.getChatUserList(chatId);
             Assertions.assertEquals(successResponseEntity, response);
         }
 
@@ -137,7 +137,7 @@ class ChatServiceTest {
             ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(expectedChatUserIdList);
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
-            ResponseEntity<ResponseDTO> response = chatService.getChatUserIdList(chatId);
+            ResponseEntity<ResponseDTO> response = chatService.getChatUserList(chatId);
             Assertions.assertEquals(successResponseEntity, response);
         }
 

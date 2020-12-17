@@ -81,7 +81,7 @@ public class ChatController {
     @GetMapping("/chats/{chatId}/userlist")
     @ResponseBody
     public ResponseEntity<ResponseDTO> getUserChatList(@PathVariable Integer chatId) {
-        return chatService.getChatUserIdList(chatId);
+        return chatService.getChatUserList(chatId);
     }
 
     @MessageMapping("/chats/{chatId}/message")

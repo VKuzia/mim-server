@@ -23,10 +23,10 @@ public class UserController {
 
     @PostMapping("/users/signup")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleUserSignUp(String userName,
+    public ResponseEntity<ResponseDTO> handleUserSignUp(String name,
                                                         String login,
                                                         String password) {
-        return userService.signUpUser(userName, login, password);
+        return userService.signUpUser(name, login, password);
     }
 
     @PostMapping("/users/login")

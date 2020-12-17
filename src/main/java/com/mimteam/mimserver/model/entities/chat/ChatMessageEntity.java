@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(schema = "mim", name = "messages")
+@Table(name = "messages")
 public class ChatMessageEntity {
 
     @Id

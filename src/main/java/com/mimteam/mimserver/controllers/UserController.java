@@ -21,6 +21,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/")
+    @ResponseBody
+    public String handleIndexPage() {
+        return "<h1>MiM Server is running...</h1>";
+    }
+
     @PostMapping("/users/signup")
     @ResponseBody
     public ResponseEntity<ResponseDTO> handleUserSignUp(String name,

@@ -24,7 +24,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final RequestMatcher noAuthenticationMatcher = new OrRequestMatcher(
             new AntPathRequestMatcher("/users/signup"),
-            new AntPathRequestMatcher("/users/login")
+            new AntPathRequestMatcher("/users/login"),
+            new AntPathRequestMatcher("/")
     );
 
     private final AuthenticationProvider authenticationProvider;

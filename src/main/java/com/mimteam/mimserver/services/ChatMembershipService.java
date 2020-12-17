@@ -1,5 +1,6 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.model.dto.ChatDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -50,7 +51,10 @@ public class ChatMembershipService {
         userToChatEntity.setUserEntity(user.get());
         userToChatEntity.setChatEntity(chat.get());
         usersToChatsRepository.save(userToChatEntity);
-        return ResponseBuilder.buildSuccess();
+        return ResponseBuilder.builder()
+                .responseType(ResponseType.OK)
+                .body(new ChatDTO(chat.get()))
+                .build();
     }
 
     public ResponseEntity<ResponseDTO> leaveChat(Integer userId, Integer chatId) {

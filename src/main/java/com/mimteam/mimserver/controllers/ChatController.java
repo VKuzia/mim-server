@@ -1,9 +1,12 @@
 package com.mimteam.mimserver.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimteam.mimserver.events.ChatEvent;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
+import com.mimteam.mimserver.model.dto.ChatDTO;
 import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
@@ -54,8 +57,13 @@ public class ChatController {
 
         ResponseEntity<ResponseDTO> response = chatService.createChat(chatName);
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            Integer chatId = Integer.valueOf(response.getBody().getResponseMessage());
-            chatMembershipService.joinChat(userEntity.getUserId(), chatId);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                ChatDTO chat = objectMapper.readValue(response.getBody().getResponseMessage(), ChatDTO.class);
+                chatMembershipService.joinChat(userEntity.getUserId(), chat.getChatId());
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
         return response;
     }

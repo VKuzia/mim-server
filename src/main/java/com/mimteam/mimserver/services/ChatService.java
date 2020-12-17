@@ -1,5 +1,6 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.model.dto.ChatDTO;
 import com.mimteam.mimserver.model.dto.UserDTO;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
@@ -37,7 +38,7 @@ public class ChatService {
 
         return ResponseBuilder.builder()
                 .responseType(ResponseType.OK)
-                .body(chatEntity.getChatId())
+                .body(new ChatDTO(chatEntity))
                 .build();
     }
 

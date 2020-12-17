@@ -7,6 +7,7 @@ import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
 import com.mimteam.mimserver.repositories.ChatsRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class ChatService {
     }
 
     public ResponseEntity<ResponseDTO> getChatUserList(Integer chatId) {
-        Optional<ChatEntity> chat = chatsRepository.findById(chatId);
+        Optional<ChatEntity> chat = getChatById(chatId);
         if (chat.isEmpty()) {
             return ResponseBuilder.buildError(ResponseType.CHAT_NOT_EXISTS);
         }
@@ -58,7 +59,27 @@ public class ChatService {
                 .build();
     }
 
+    public ResponseEntity<ResponseDTO> getChatInvitationKey(Integer chatId) {
+        Optional<ChatEntity> chat = getChatById(chatId);
+        if (chat.isEmpty()) {
+            return ResponseBuilder.buildError(ResponseType.CHAT_NOT_EXISTS);
+        }
+
+        String invitationKey = RandomStringUtils.random(10, true, true);
+        chat.get().setInvitationKey(invitationKey);
+        chatsRepository.save(chat.get());
+
+        return ResponseBuilder.builder()
+                .responseType(ResponseType.OK)
+                .body(invitationKey)
+                .build();
+    }
+
     public Optional<ChatEntity> getChatById(Integer chatId) {
         return chatsRepository.findById(chatId);
+    }
+
+    public Optional<ChatEntity> getChatByInvitationKey(String invitationKey) {
+        return chatsRepository.findByInvitationKey(invitationKey);
     }
 }

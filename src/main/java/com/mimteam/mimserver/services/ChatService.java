@@ -1,6 +1,5 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.dto.ChatDTO;
 import com.mimteam.mimserver.model.dto.UserDTO;
 import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
@@ -20,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
+    private static final int INVITATION_KEY_LENGTH = 10;
+
     private final ChatsRepository chatsRepository;
 
     @Autowired
@@ -27,19 +28,10 @@ public class ChatService {
         this.chatsRepository = chatsRepository;
     }
 
-    public ResponseEntity<ResponseDTO> createChat(String chatName) {
-        Optional<ChatEntity> chat = chatsRepository.findByName(chatName);
-        if (chat.isPresent()) {
-            return ResponseBuilder.buildError(ResponseType.CHAT_ALREADY_EXISTS);
-        }
-
+    public ChatEntity createChat(String chatName) {
         ChatEntity chatEntity = new ChatEntity(chatName);
         chatsRepository.save(chatEntity);
-
-        return ResponseBuilder.builder()
-                .responseType(ResponseType.OK)
-                .body(new ChatDTO(chatEntity))
-                .build();
+        return chatEntity;
     }
 
     public ResponseEntity<ResponseDTO> getChatUserList(Integer chatId) {
@@ -66,7 +58,7 @@ public class ChatService {
             return ResponseBuilder.buildError(ResponseType.CHAT_NOT_EXISTS);
         }
 
-        String invitationKey = RandomStringUtils.random(10, true, true);
+        String invitationKey = RandomStringUtils.randomAlphanumeric(INVITATION_KEY_LENGTH);
         chat.get().setInvitationKey(invitationKey);
         chatsRepository.save(chat.get());
 

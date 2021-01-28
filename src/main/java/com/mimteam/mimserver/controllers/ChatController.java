@@ -1,7 +1,5 @@
 package com.mimteam.mimserver.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimteam.mimserver.events.ChatEvent;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
@@ -55,17 +53,13 @@ public class ChatController {
     public ResponseEntity<ResponseDTO> handleCreateChat(Authentication authentication, String chatName) {
         UserEntity userEntity = (UserEntity) authentication.getPrincipal();
 
-        ResponseEntity<ResponseDTO> response = chatService.createChat(chatName);
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                ChatDTO chat = objectMapper.readValue(response.getBody().getResponseMessage(), ChatDTO.class);
-                chatMembershipService.joinChat(userEntity.getUserId(), chat.getChatId());
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-        return response;
+        ChatEntity chatEntity = chatService.createChat(chatName);
+        chatMembershipService.joinChat(userEntity.getUserId(), chatEntity.getChatId());
+
+        return ResponseBuilder.builder()
+                .body(new ChatDTO(chatEntity))
+                .responseType(ResponseDTO.ResponseType.OK)
+                .build();
     }
 
     @PostMapping("/chats/join")
@@ -112,6 +106,7 @@ public class ChatController {
     public ResponseEntity<ResponseDTO> getChatInvitationKey(Authentication authentication,
                                                             @PathVariable Integer chatId) {
         UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+
         if (!chatMembershipService.isUserInChat(chatId, userEntity.getUserId())) {
             return ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_IN_CHAT);
         }

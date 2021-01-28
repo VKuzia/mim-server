@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
+import com.mimteam.mimserver.model.dto.ChatDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatId;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
+import com.mimteam.mimserver.model.messages.TextMessage;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.repositories.ChatMessagesRepository;
 import com.mimteam.mimserver.repositories.ChatsRepository;
@@ -36,6 +39,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,7 +59,7 @@ class ChatControllerTest {
     @Autowired
     private UsersToChatsRepository usersToChatsRepository;
 
-    private static int chatId = 1;
+    private int chatId = 1;
     private static final String CONTENT_1 = "Text message1";
     private static final String CONTENT_2 = "Text message2";
 
@@ -150,7 +154,8 @@ class ChatControllerTest {
         ResponseDTO responseDto = parseResponseDto(result);
 
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDto.getResponseType());
-        Assertions.assertNull(responseDto.getResponseMessage());
+        Assertions.assertNotNull(responseDto.getResponseMessage());
+        Assertions.assertEquals(objectAsString(new ChatDTO(chatEntity)), responseDto.getResponseMessage());
 
         ArgumentCaptor<ChatMembershipEvent> chatEventCaptor = ArgumentCaptor.forClass(ChatMembershipEvent.class);
         Mockito.verify(eventHandler).post(chatEventCaptor.capture());
@@ -163,7 +168,7 @@ class ChatControllerTest {
     }
 
     @Test
-    public void getChatMessageListChatNotExists() throws Exception {
+    public void getMessageHistoryChatNotExists() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/2/messages")
                 .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
@@ -176,7 +181,7 @@ class ChatControllerTest {
     }
 
     @Test
-    public void getChatMessageListEmpty() throws Exception {
+    public void getMessageHistoryEmpty() throws Exception {
         chatsRepository.save(chatEntity);
         chatId = chatEntity.getChatId();
 
@@ -193,7 +198,7 @@ class ChatControllerTest {
     }
 
     @Test
-    public void getChatMessageListNotEmpty() throws Exception {
+    public void getMessageHistoryNotEmpty() throws Exception {
         chatsRepository.save(chatEntity);
         chatId = chatEntity.getChatId();
         chatMessageEntity1.setChatId(chatId);
@@ -211,7 +216,7 @@ class ChatControllerTest {
         Assertions.assertNotNull(responseDto.getResponseMessage());
 
         String expectedResponseMessage =
-                chatMessageEntitiesToString(Arrays.asList(chatMessageEntity1, chatMessageEntity2));
+                chatMessageEntitiesToDtoString(Arrays.asList(chatMessageEntity1, chatMessageEntity2));
         Assertions.assertEquals(expectedResponseMessage, responseDto.getResponseMessage());
     }
 
@@ -232,7 +237,9 @@ class ChatControllerTest {
     public void getInvitationKeySuccess() throws Exception {
         chatsRepository.save(chatEntity);
         usersToChatsRepository.save(buildUserToChatEntity(userEntity, chatEntity));
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatEntity.getChatId() + "/invitation")
+
+        MvcResult result =
+                mockMvc.perform(MockMvcRequestBuilders.get("/chats/" + chatEntity.getChatId() + "/invitation")
                 .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
@@ -249,9 +256,18 @@ class ChatControllerTest {
         return objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseDTO.class);
     }
 
-    private String chatMessageEntitiesToString(List<ChatMessageEntity> chatMessageEntities) throws JsonProcessingException {
+    private String chatMessageEntitiesToDtoString(List<ChatMessageEntity> chatMessageEntities)
+            throws JsonProcessingException {
+        List<MessageDTO> dtoList = chatMessageEntities.stream()
+                .map(TextMessage::new)
+                .map(TextMessage::toDataTransferObject)
+                .collect(Collectors.toList());
+        return objectAsString(dtoList);
+    }
+
+    private String objectAsString(Object object) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(chatMessageEntities);
+        return objectMapper.writeValueAsString(object);
     }
 
     private UserToChatEntity buildUserToChatEntity(UserEntity userEntity, ChatEntity chatEntity) {

@@ -6,7 +6,7 @@ public class ResponseDTO {
 
     public enum ResponseType {
         OK,
-        CHAT_ALREADY_EXISTS, CHAT_NOT_EXISTS,
+        CHAT_NOT_EXISTS,
         USER_ALREADY_EXISTS, USER_NOT_EXISTS,
         USER_ALREADY_IN_CHAT, USER_NOT_IN_CHAT,
         INCORRECT_PASSWORD

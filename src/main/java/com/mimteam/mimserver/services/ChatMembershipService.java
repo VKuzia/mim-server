@@ -51,6 +51,7 @@ public class ChatMembershipService {
         userToChatEntity.setUserEntity(user.get());
         userToChatEntity.setChatEntity(chat.get());
         usersToChatsRepository.save(userToChatEntity);
+
         return ResponseBuilder.builder()
                 .responseType(ResponseType.OK)
                 .body(new ChatDTO(chat.get()))

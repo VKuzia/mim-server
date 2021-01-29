@@ -2,6 +2,7 @@ package com.mimteam.mimserver.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mimteam.mimserver.TestingUtils;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
 import com.mimteam.mimserver.model.dto.ChatDTO;
@@ -155,7 +156,7 @@ class ChatControllerTest {
 
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDto.getResponseType());
         Assertions.assertNotNull(responseDto.getResponseMessage());
-        Assertions.assertEquals(objectAsString(new ChatDTO(chatEntity)), responseDto.getResponseMessage());
+        Assertions.assertEquals(TestingUtils.convertToString(new ChatDTO(chatEntity)), responseDto.getResponseMessage());
 
         ArgumentCaptor<ChatMembershipEvent> chatEventCaptor = ArgumentCaptor.forClass(ChatMembershipEvent.class);
         Mockito.verify(eventHandler).post(chatEventCaptor.capture());
@@ -262,12 +263,7 @@ class ChatControllerTest {
                 .map(TextMessage::new)
                 .map(TextMessage::toDataTransferObject)
                 .collect(Collectors.toList());
-        return objectAsString(dtoList);
-    }
-
-    private String objectAsString(Object object) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(object);
+        return TestingUtils.convertToString(dtoList);
     }
 
     private UserToChatEntity buildUserToChatEntity(UserEntity userEntity, ChatEntity chatEntity) {

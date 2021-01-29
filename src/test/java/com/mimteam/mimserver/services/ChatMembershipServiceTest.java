@@ -1,5 +1,6 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.TestingUtils;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -121,7 +122,7 @@ class ChatMembershipServiceTest {
         Mockito.when(usersToChatsRepository.findById(Mockito.any(UserToChatId.class))).thenReturn(Optional.empty());
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder();
+            ResponseBuilder mockResponseBuilder = TestingUtils.createMockSuccessResponseBuilder();
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
             ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(USER_ID, CHAT_ID);
@@ -182,13 +183,5 @@ class ChatMembershipServiceTest {
         Assertions.assertEquals(CHAT_ID, userToChatCaptor.getValue().getId().getChatId());
         Assertions.assertEquals(userEntity, userToChatCaptor.getValue().getUserEntity());
         Assertions.assertEquals(chatEntity, userToChatCaptor.getValue().getChatEntity());
-    }
-
-    private ResponseBuilder createMockSuccessResponseBuilder() {
-        ResponseBuilder responseBuilder = Mockito.mock(ResponseBuilder.class);
-        Mockito.when(responseBuilder.responseType(ResponseDTO.ResponseType.OK)).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.body(Mockito.any())).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.build()).thenReturn(successResponseEntity);
-        return responseBuilder;
     }
 }

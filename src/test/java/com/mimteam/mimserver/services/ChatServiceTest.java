@@ -1,5 +1,6 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.TestingUtils;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -91,7 +92,7 @@ class ChatServiceTest {
         Mockito.when(chatsRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(spyChatEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(new ArrayList<>());
+            ResponseBuilder mockResponseBuilder = TestingUtils.createMockSuccessResponseBuilder(new ArrayList<>());
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
             ResponseEntity<ResponseDTO> response = chatService.getChatUserList(CHAT_ID);
@@ -112,7 +113,7 @@ class ChatServiceTest {
         Mockito.when(chatsRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(spyChatEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder();
+            ResponseBuilder mockResponseBuilder = TestingUtils.createMockSuccessResponseBuilder();
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
             ResponseEntity<ResponseDTO> response = chatService.getChatUserList(CHAT_ID);
@@ -204,20 +205,6 @@ class ChatServiceTest {
         Assertions.assertEquals(chatEntity, chat.get());
 
         Mockito.verify(chatsRepository).findByInvitationKey(INVITATION_KEY);
-    }
-
-    private ResponseBuilder createMockSuccessResponseBuilder(Object body) {
-        ResponseBuilder responseBuilder = Mockito.mock(ResponseBuilder.class);
-        Mockito.when(responseBuilder.responseType(ResponseDTO.ResponseType.OK)).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.body(body)).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.build()).thenReturn(successResponseEntity);
-        return responseBuilder;
-    }
-
-    private ResponseBuilder createMockSuccessResponseBuilder() {
-        ResponseBuilder responseBuilder = createMockSuccessResponseBuilder(null);
-        Mockito.when(responseBuilder.body(Mockito.any())).thenReturn(responseBuilder);
-        return responseBuilder;
     }
 
     private Set<UserToChatEntity> getUsersForChat(ArrayList<Integer> userIdList) {

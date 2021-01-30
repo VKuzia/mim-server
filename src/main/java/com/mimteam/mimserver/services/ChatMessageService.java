@@ -1,5 +1,6 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import com.mimteam.mimserver.model.messages.TextMessage;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatMessageService {
@@ -36,7 +38,10 @@ public class ChatMessageService {
             return ResponseBuilder.buildError(ResponseDTO.ResponseType.CHAT_NOT_EXISTS);
         }
 
-        List<ChatMessageEntity> messageEntities = chatMessagesRepository.findByChatId(chatId);
+        List<MessageDTO> messageEntities = chatMessagesRepository.findByChatId(chatId).stream()
+                .map(TextMessage::new)
+                .map(TextMessage::toDataTransferObject)
+                .collect(Collectors.toList());
 
         return ResponseBuilder.builder()
                 .responseType(ResponseDTO.ResponseType.OK)

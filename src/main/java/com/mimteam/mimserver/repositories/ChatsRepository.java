@@ -6,6 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface ChatsRepository extends CrudRepository<ChatEntity, Integer> {
-    Optional<ChatEntity> findByName(String name);
     Optional<ChatEntity> findByInvitationKey(String invitationKey);
 }

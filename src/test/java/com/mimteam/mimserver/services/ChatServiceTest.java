@@ -1,5 +1,6 @@
 package com.mimteam.mimserver.services;
 
+import com.mimteam.mimserver.TestingUtils;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
@@ -20,7 +21,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
@@ -50,39 +55,15 @@ class ChatServiceTest {
     }
 
     @Test
-    public void createChatAlreadyExists() {
-        Mockito.when(chatsRepository.findByName(Mockito.anyString())).thenReturn(Optional.of(chatEntity));
-
-        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.CHAT_ALREADY_EXISTS))
-                    .thenReturn(errorResponseEntity);
-
-            ResponseEntity<ResponseDTO> response = chatService.createChat(CHAT_NAME);
-            Assertions.assertEquals(errorResponseEntity, response);
-        }
-
-        Mockito.verify(chatsRepository).findByName(CHAT_NAME);
-        Mockito.verify(chatsRepository, Mockito.never()).save(Mockito.any());
-    }
-
-    @Test
     public void createChatSuccess() {
-        Mockito.when(chatsRepository.findByName(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(chatsRepository.save(Mockito.any())).thenAnswer(invocation -> {
             ((ChatEntity) invocation.getArgument(0)).setChatId(CHAT_ID);
             return null;
         });
 
-        try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(CHAT_ID);
-            responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
-
-            ResponseEntity<ResponseDTO> response = chatService.createChat(CHAT_NAME);
-            Assertions.assertEquals(successResponseEntity, response);
-        }
+        Assertions.assertNotNull(chatService.createChat(CHAT_NAME));
 
         ArgumentCaptor<ChatEntity> chatCaptor = ArgumentCaptor.forClass(ChatEntity.class);
-        Mockito.verify(chatsRepository).findByName(CHAT_NAME);
         Mockito.verify(chatsRepository).save(chatCaptor.capture());
 
         Assertions.assertEquals(CHAT_NAME, chatCaptor.getValue().getName());
@@ -97,7 +78,7 @@ class ChatServiceTest {
             responseBuilder.when(() -> ResponseBuilder.buildError(ResponseDTO.ResponseType.CHAT_NOT_EXISTS))
                     .thenReturn(errorResponseEntity);
 
-            ResponseEntity<ResponseDTO> response = chatService.getChatUserIdList(CHAT_ID);
+            ResponseEntity<ResponseDTO> response = chatService.getChatUserList(CHAT_ID);
             Assertions.assertEquals(errorResponseEntity, response);
         }
 
@@ -111,10 +92,10 @@ class ChatServiceTest {
         Mockito.when(chatsRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(spyChatEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(new ArrayList<>());
+            ResponseBuilder mockResponseBuilder = TestingUtils.createMockSuccessResponseBuilder(new ArrayList<>());
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
-            ResponseEntity<ResponseDTO> response = chatService.getChatUserIdList(CHAT_ID);
+            ResponseEntity<ResponseDTO> response = chatService.getChatUserList(CHAT_ID);
             Assertions.assertEquals(successResponseEntity, response);
         }
 
@@ -123,19 +104,19 @@ class ChatServiceTest {
 
     @Test
     public void getChatUserIdListNonEmpty() {
-        ArrayList<Integer> expectedChatUserIdList = new ArrayList<>(Arrays.asList(3, 1));
-        expectedChatUserIdList.sort(Integer::compareTo);
-        Set<UserToChatEntity> userToChatIds = getUsersForChat(expectedChatUserIdList);
+        ArrayList<Integer> chatUserIdList = new ArrayList<>(Arrays.asList(3, 1));
+        chatUserIdList.sort(Integer::compareTo);
+        Set<UserToChatEntity> userToChatIds = getUsersForChat(chatUserIdList);
 
         ChatEntity spyChatEntity = Mockito.spy(chatEntity);
         Mockito.when(spyChatEntity.getUserList()).thenReturn(userToChatIds);
         Mockito.when(chatsRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(spyChatEntity));
 
         try (MockedStatic<ResponseBuilder> responseBuilder = Mockito.mockStatic(ResponseBuilder.class)) {
-            ResponseBuilder mockResponseBuilder = createMockSuccessResponseBuilder(expectedChatUserIdList);
+            ResponseBuilder mockResponseBuilder = TestingUtils.createMockSuccessResponseBuilder();
             responseBuilder.when(ResponseBuilder::builder).thenReturn(mockResponseBuilder);
 
-            ResponseEntity<ResponseDTO> response = chatService.getChatUserIdList(CHAT_ID);
+            ResponseEntity<ResponseDTO> response = chatService.getChatUserList(CHAT_ID);
             Assertions.assertEquals(successResponseEntity, response);
         }
 
@@ -224,14 +205,6 @@ class ChatServiceTest {
         Assertions.assertEquals(chatEntity, chat.get());
 
         Mockito.verify(chatsRepository).findByInvitationKey(INVITATION_KEY);
-    }
-
-    private ResponseBuilder createMockSuccessResponseBuilder(Object body) {
-        ResponseBuilder responseBuilder = Mockito.mock(ResponseBuilder.class);
-        Mockito.when(responseBuilder.responseType(ResponseDTO.ResponseType.OK)).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.body(body)).thenReturn(responseBuilder);
-        Mockito.when(responseBuilder.build()).thenReturn(successResponseEntity);
-        return responseBuilder;
     }
 
     private Set<UserToChatEntity> getUsersForChat(ArrayList<Integer> userIdList) {

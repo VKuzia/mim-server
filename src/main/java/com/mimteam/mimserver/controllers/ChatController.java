@@ -4,7 +4,8 @@ import com.mimteam.mimserver.events.ChatEvent;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
-import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.dto.ChatDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
@@ -49,8 +50,16 @@ public class ChatController {
 
     @PostMapping("/chats/create")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleCreateChat(String chatName) {
-        return chatService.createChat(chatName);
+    public ResponseEntity<ResponseDTO> handleCreateChat(Authentication authentication, String chatName) {
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+
+        ChatEntity chatEntity = chatService.createChat(chatName);
+        chatMembershipService.joinChat(userEntity.getUserId(), chatEntity.getChatId());
+
+        return ResponseBuilder.builder()
+                .body(new ChatDTO(chatEntity))
+                .responseType(ResponseDTO.ResponseType.OK)
+                .build();
     }
 
     @PostMapping("/chats/join")
@@ -89,7 +98,7 @@ public class ChatController {
     @GetMapping("/chats/{chatId}/userlist")
     @ResponseBody
     public ResponseEntity<ResponseDTO> getUserChatList(@PathVariable Integer chatId) {
-        return chatService.getChatUserIdList(chatId);
+        return chatService.getChatUserList(chatId);
     }
 
     @GetMapping("/chats/{chatId}/invitation")
@@ -97,6 +106,7 @@ public class ChatController {
     public ResponseEntity<ResponseDTO> getChatInvitationKey(Authentication authentication,
                                                             @PathVariable Integer chatId) {
         UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+
         if (!chatMembershipService.isUserInChat(chatId, userEntity.getUserId())) {
             return ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_IN_CHAT);
         }

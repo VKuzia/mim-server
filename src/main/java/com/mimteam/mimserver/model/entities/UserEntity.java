@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @Entity
-@Table(schema = "mim", name = "users")
+@Table(name = "users")
 public class UserEntity implements UserDetails {
 
     @Id

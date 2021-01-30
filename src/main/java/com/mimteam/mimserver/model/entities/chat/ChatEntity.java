@@ -8,12 +8,14 @@ import javax.persistence.Table;
 import java.util.Set;
 
 @Entity
-@Table(schema = "mim", name = "chats")
+@Table(name = "chats")
 public class ChatEntity {
 
     @Id
     @GeneratedValue
     private Integer chatId;
+
+    private String invitationKey;
 
     private String name;
 
@@ -40,6 +42,14 @@ public class ChatEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getInvitationKey() {
+        return invitationKey;
+    }
+
+    public void setInvitationKey(String invitationKey) {
+        this.invitationKey = invitationKey;
     }
 
     public Set<UserToChatEntity> getUserList() {

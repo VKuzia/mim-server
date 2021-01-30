@@ -1,16 +1,24 @@
 package com.mimteam.mimserver.model.messages;
 
-import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.Transferable;
+import com.mimteam.mimserver.model.entities.chat.ChatMessageEntity;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class TextMessage implements Transferable {
     private Integer userId;
     private Integer chatId;
     private String content;
-    private LocalDateTime dateTime;
+    private Date dateTime;
+
+    public TextMessage(ChatMessageEntity messageEntity) {
+        this.userId = messageEntity.getSenderId();
+        this.chatId = messageEntity.getChatId();
+        this.content = messageEntity.getContent();
+        this.dateTime = messageEntity.getDateTime();
+    }
 
     public TextMessage(MessageDTO messageDto) {
         fromDataTransferObject(messageDto);
@@ -59,11 +67,11 @@ public class TextMessage implements Transferable {
         this.content = content;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 }

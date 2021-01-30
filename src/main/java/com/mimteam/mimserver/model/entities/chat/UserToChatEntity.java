@@ -10,7 +10,7 @@ import javax.persistence.MapsId;
 import javax.persistence.Table;
 
 @Entity
-@Table(schema = "mim", name = "user_to_chat")
+@Table(name = "user_to_chat")
 public class UserToChatEntity {
 
     @EmbeddedId

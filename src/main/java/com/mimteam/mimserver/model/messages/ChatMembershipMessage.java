@@ -1,6 +1,6 @@
 package com.mimteam.mimserver.model.messages;
 
-import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.Transferable;
 import org.jetbrains.annotations.NotNull;
 

@@ -4,16 +4,18 @@ import com.mimteam.mimserver.events.ChatEvent;
 import com.mimteam.mimserver.events.ChatMembershipEvent;
 import com.mimteam.mimserver.events.SendTextMessageEvent;
 import com.mimteam.mimserver.handlers.EventHandler;
-import com.mimteam.mimserver.model.MessageDTO;
+import com.mimteam.mimserver.model.dto.ChatDTO;
+import com.mimteam.mimserver.model.dto.MessageDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
-import com.mimteam.mimserver.model.responses.ResponseBuilder;
-import com.mimteam.mimserver.model.responses.ResponseDTO;
+import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage;
 import com.mimteam.mimserver.model.messages.ChatMembershipMessage.ChatMembershipMessageType;
 import com.mimteam.mimserver.model.messages.TextMessage;
-import com.mimteam.mimserver.services.ChatService;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.services.ChatMembershipService;
 import com.mimteam.mimserver.services.ChatMessageService;
+import com.mimteam.mimserver.services.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Optional;
 
 @Controller
 public class ChatController {
@@ -46,19 +50,32 @@ public class ChatController {
 
     @PostMapping("/chats/create")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleCreateChat(String chatName) {
-        return chatService.createChat(chatName);
-    }
-
-    @PostMapping("/chats/{chatId}/join")
-    @ResponseBody
-    public ResponseEntity<ResponseDTO> handleJoinChat(Authentication authentication,
-                                                      @PathVariable Integer chatId) {
+    public ResponseEntity<ResponseDTO> handleCreateChat(Authentication authentication, String chatName) {
         UserEntity userEntity = (UserEntity) authentication.getPrincipal();
 
-        ResponseEntity<ResponseDTO> response = chatMembershipService.joinChat(userEntity.getUserId(), chatId);
+        ChatEntity chatEntity = chatService.createChat(chatName);
+        chatMembershipService.joinChat(userEntity.getUserId(), chatEntity.getChatId());
+
+        return ResponseBuilder.builder()
+                .body(new ChatDTO(chatEntity))
+                .responseType(ResponseDTO.ResponseType.OK)
+                .build();
+    }
+
+    @PostMapping("/chats/join")
+    @ResponseBody
+    public ResponseEntity<ResponseDTO> handleJoinChat(Authentication authentication, String invitationKey) {
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+        Optional<ChatEntity> chatEntity = chatService.getChatByInvitationKey(invitationKey);
+
+        if (chatEntity.isEmpty()) {
+            return ResponseBuilder.buildError(ResponseDTO.ResponseType.CHAT_NOT_EXISTS);
+        }
+
+        ResponseEntity<ResponseDTO> response =
+                chatMembershipService.joinChat(userEntity.getUserId(), chatEntity.get().getChatId());
         if (response.getStatusCode().is2xxSuccessful()) {
-            postMembershipEvent(userEntity.getUserId(), chatId, ChatMembershipMessageType.JOIN);
+            postMembershipEvent(userEntity.getUserId(), chatEntity.get().getChatId(), ChatMembershipMessageType.JOIN);
         }
 
         return response;
@@ -81,7 +98,19 @@ public class ChatController {
     @GetMapping("/chats/{chatId}/userlist")
     @ResponseBody
     public ResponseEntity<ResponseDTO> getUserChatList(@PathVariable Integer chatId) {
-        return chatService.getChatUserIdList(chatId);
+        return chatService.getChatUserList(chatId);
+    }
+
+    @GetMapping("/chats/{chatId}/invitation")
+    @ResponseBody
+    public ResponseEntity<ResponseDTO> getChatInvitationKey(Authentication authentication,
+                                                            @PathVariable Integer chatId) {
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+
+        if (!chatMembershipService.isUserInChat(chatId, userEntity.getUserId())) {
+            return ResponseBuilder.buildError(ResponseDTO.ResponseType.USER_NOT_IN_CHAT);
+        }
+        return chatService.getChatInvitationKey(chatId);
     }
 
     @MessageMapping("/chats/{chatId}/message")

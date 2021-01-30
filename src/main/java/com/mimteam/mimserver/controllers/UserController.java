@@ -1,6 +1,7 @@
 package com.mimteam.mimserver.controllers;
 
 import com.mimteam.mimserver.model.entities.UserEntity;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
 import com.mimteam.mimserver.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,18 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/")
+    @ResponseBody
+    public String handleIndexPage() {
+        return "<h1>MiM Server is running...</h1>";
+    }
+
     @PostMapping("/users/signup")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> handleUserSignUp(String userName,
+    public ResponseEntity<ResponseDTO> handleUserSignUp(String name,
                                                         String login,
                                                         String password) {
-        return userService.signUpUser(userName, login, password);
+        return userService.signUpUser(name, login, password);
     }
 
     @PostMapping("/users/login")
@@ -38,6 +45,16 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<ResponseDTO> getUserChatList(Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        return userService.getChatIdList(user.getUserId());
+        return userService.getChatList(user.getUserId());
+    }
+
+    @GetMapping("/users/getid")
+    @ResponseBody
+    public ResponseEntity<ResponseDTO> getUserId(Authentication authentication) {
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        return ResponseBuilder.builder()
+                .responseType(ResponseDTO.ResponseType.OK)
+                .body(user.getUserId())
+                .build();
     }
 }

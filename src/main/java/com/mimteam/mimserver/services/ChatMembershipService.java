@@ -1,12 +1,13 @@
 package com.mimteam.mimserver.services;
 
-import com.mimteam.mimserver.model.responses.ResponseBuilder;
-import com.mimteam.mimserver.model.responses.ResponseDTO;
-import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
+import com.mimteam.mimserver.model.dto.ChatDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatEntity;
 import com.mimteam.mimserver.model.entities.chat.UserToChatId;
+import com.mimteam.mimserver.model.responses.ResponseBuilder;
+import com.mimteam.mimserver.model.responses.ResponseDTO;
+import com.mimteam.mimserver.model.responses.ResponseDTO.ResponseType;
 import com.mimteam.mimserver.repositories.UsersToChatsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,11 @@ public class ChatMembershipService {
         userToChatEntity.setUserEntity(user.get());
         userToChatEntity.setChatEntity(chat.get());
         usersToChatsRepository.save(userToChatEntity);
-        return ResponseBuilder.buildSuccess();
+
+        return ResponseBuilder.builder()
+                .responseType(ResponseType.OK)
+                .body(new ChatDTO(chat.get()))
+                .build();
     }
 
     public ResponseEntity<ResponseDTO> leaveChat(Integer userId, Integer chatId) {
@@ -62,5 +67,11 @@ public class ChatMembershipService {
 
         usersToChatsRepository.delete(userToChat.get());
         return ResponseBuilder.buildSuccess();
+    }
+
+    public boolean isUserInChat(Integer chatId, Integer userId) {
+        UserToChatId userToChatId = new UserToChatId(userId, chatId);
+        Optional<UserToChatEntity> userToChat = usersToChatsRepository.findById(userToChatId);
+        return userToChat.isPresent();
     }
 }

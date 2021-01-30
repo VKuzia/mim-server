@@ -1,7 +1,7 @@
 package com.mimteam.mimserver.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mimteam.mimserver.TestingUtils;
+import com.mimteam.mimserver.model.dto.ChatDTO;
 import com.mimteam.mimserver.model.entities.UserEntity;
 import com.mimteam.mimserver.model.entities.chat.ChatEntity;
 import com.mimteam.mimserver.model.responses.ResponseDTO;
@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.UnsupportedEncodingException;
+import java.util.UUID;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,23 +41,23 @@ public class UserControllerTest {
     @Autowired
     private UsersToChatsRepository usersToChatsRepository;
 
-    private static final String userUuidToken = "00000000-0000-0000-0000-000000000000";
-    private static final String authorizationHeaderToken = "Bearer " + userUuidToken;
+    private static final String USER_UUID_TOKEN = "00000000-0000-0000-0000-000000000000";
+    private static final String AUTHORIZATION_HEADER_TOKEN = "Bearer " + USER_UUID_TOKEN;
 
-    private static final String chatName = "Test Chat";
-    private static final String userName = "Test User";
-    private static final String login = "test_user";
-    private static final String password = "password";
+    private static final String CHAT_NAME = "Test Chat";
+    private static final String USER_NAME = "Test User";
+    private static final String LOGIN = "test_user";
+    private static final String PASSWORD = "password";
 
     private ChatEntity chatEntity;
     private UserEntity userEntity;
 
     @BeforeEach
     public void init() {
-        userEntity = new UserEntity(userName, login, password);
-        userEntity.setToken(userUuidToken);
+        userEntity = new UserEntity(USER_NAME, LOGIN, PASSWORD);
+        userEntity.setToken(USER_UUID_TOKEN);
 
-        chatEntity = new ChatEntity(chatName);
+        chatEntity = new ChatEntity(CHAT_NAME);
     }
 
     @AfterEach
@@ -68,49 +68,48 @@ public class UserControllerTest {
     }
 
     @Test
-    public void signUpUserSuccess() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/signup")
-                .param("userName", userName)
-                .param("login", login)
-                .param("password", password))
-                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
-                .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
-
-        Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
-        Assertions.assertTrue(usersRepository.existsById(1));
-    }
-
-    @Test
     public void signUpUserAlreadyExists() throws Exception {
         usersRepository.save(userEntity);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/signup")
-                .param("userName", userName)
-                .param("login", login)
-                .param("password", password))
+                .param("userName", USER_NAME)
+                .param("login", LOGIN)
+                .param("password", PASSWORD))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
 
         Assertions.assertEquals(ResponseDTO.ResponseType.USER_ALREADY_EXISTS, responseDTO.getResponseType());
+        Assertions.assertNull(responseDTO.getResponseMessage());
+        Assertions.assertTrue(usersRepository.existsById(userEntity.getUserId()));
+    }
+
+    @Test
+    public void signUpUserSuccess() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/signup")
+                .param("userName", USER_NAME)
+                .param("login", LOGIN)
+                .param("password", PASSWORD))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andReturn();
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
+
+        Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
+        Assertions.assertNull(responseDTO.getResponseMessage());
         Assertions.assertTrue(usersRepository.existsById(1));
     }
 
     @Test
-    public void loginUserSuccess() throws Exception {
-        usersRepository.save(userEntity);
-
+    public void loginUserNotExists() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
-                .param("login", login)
-                .param("password", password)
-                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
-                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .param("login", LOGIN)
+                .param("password", PASSWORD))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
 
-        Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
-        Assertions.assertNotNull(responseDTO.getResponseMessage());
+        Assertions.assertEquals(ResponseDTO.ResponseType.USER_NOT_EXISTS, responseDTO.getResponseType());
+        Assertions.assertNull(responseDTO.getResponseMessage());
     }
 
     @Test
@@ -119,66 +118,75 @@ public class UserControllerTest {
 
         String incorrectPassword = "pass";
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
-                .param("login", login)
+                .param("login", LOGIN)
                 .param("password", incorrectPassword))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
 
         Assertions.assertEquals(ResponseDTO.ResponseType.INCORRECT_PASSWORD, responseDTO.getResponseType());
-        Assertions.assertTrue(usersRepository.existsById(userEntity.getUserId()));
+        Assertions.assertNull(responseDTO.getResponseMessage());
     }
 
     @Test
-    public void loginUserNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
-                .param("login", login)
-                .param("password", password))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
-                .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
-
-        Assertions.assertEquals(ResponseDTO.ResponseType.USER_NOT_EXISTS, responseDTO.getResponseType());
-    }
-
-    @Test
-    public void getChatIdListEmpty() throws Exception {
+    public void loginUserSuccess() throws Exception {
         usersRepository.save(userEntity);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(
-                "/users/chatlist")
-                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
+                .param("login", LOGIN)
+                .param("password", PASSWORD)
+                .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
+
+        Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
+        Assertions.assertNotNull(responseDTO.getResponseMessage());
+        Assertions.assertDoesNotThrow(() -> UUID.fromString(responseDTO.getResponseMessage()));
+    }
+
+    @Test
+    public void getChatListEmpty() throws Exception {
+        usersRepository.save(userEntity);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/users/chatlist")
+                .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andReturn();
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
 
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
         Assertions.assertEquals("[]", responseDTO.getResponseMessage());
     }
 
     @Test
-    public void getChatIdList() throws Exception {
+    public void getChatListSuccess() throws Exception {
         chatsRepository.save(chatEntity);
         usersRepository.save(userEntity);
+        usersToChatsRepository.save(TestingUtils.buildUserToChatEntity(userEntity, chatEntity));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/chats/" + chatEntity.getChatId() + "/join")
-                .param("userId", userEntity.getUserId().toString())
-                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken));
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(
-                "/users/chatlist")
-                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderToken))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/users/chatlist")
+                .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andReturn();
-        ResponseDTO responseDTO = parseResponseDto(result);
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
 
         Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
-        Assertions.assertEquals("[" + chatEntity.getChatId() + "]", responseDTO.getResponseMessage());
+        Assertions.assertEquals("[" + TestingUtils.convertToString(new ChatDTO(chatEntity)) + "]",
+                responseDTO.getResponseMessage());
     }
 
-    private ResponseDTO parseResponseDto(MvcResult mvcResult)
-            throws UnsupportedEncodingException, JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseDTO.class);
+    @Test
+    public void getUserIdSuccess() throws Exception {
+        usersRepository.save(userEntity);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/users/getid")
+                .header(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER_TOKEN))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andReturn();
+        ResponseDTO responseDTO = TestingUtils.parseResponseDto(result);
+
+        Assertions.assertEquals(ResponseDTO.ResponseType.OK, responseDTO.getResponseType());
+        Assertions.assertEquals(userEntity.getUserId().toString(), responseDTO.getResponseMessage());
     }
 }

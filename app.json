@@ -1,0 +1,10 @@
+{
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev",
+      "options": {
+        "version": "12"
+      }
+    }
+  ]
+}
